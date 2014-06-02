@@ -50,10 +50,12 @@ A *ReportingStrategy* controls what gets reported to parent swarms and how often
 The following commands can be sent to each swarm. By default, when a command it sent to a multiswarm, it trickles down to all LocalSwarms.
 
 ##### SwarmOneIteration
-Swarm for one iteration and wait for another command. When the SwarmAround is complete, a SwarmAroundCompleted report will be generated. The swarm's *ReportingStrategy* decide to let the report go through or not.
- 
+Swarm for one iteration and wait for another command. When the SwarmOneIteration has completed, a SwarmOneIterationCompleted report is generated with the current best position. The swarm's *ReportingStrategy* decides whether to let the report go up to the parent or not.
+
 ##### SwarmAround( iterations: Int)
-Swarm around for a number of iterations, then wait for another command. If the simulation should run for 1000 iterations, you can send 1000 SwarmOneIteration, 100 SwarmAround(10) or one SwarmAround(1000) message. The difference is how often a *SwarmAroundCompleted* report is generated and how often you want social interactions between swarms. When the SwarmAround is completed, a SwarmAroundCompleted report will be generated with a best position. The swarm's *ReportingStrategy* decides whether to let the report go up to the parent or not.
+Swarm around for a number of iterations, then wait for another command. When the SwarmAround has completed, a SwarmAroundCompleted report is generated with the current best position. The swarm's *ReportingStrategy* decides whether to let the report go up to the parent or not.
+
+If the simulation should run for 1000 iterations, you can send 1000 SwarmOneIteration, 100 SwarmAround(10) or one SwarmAround(1000) message. The difference is how often a *SwarmAroundCompleted* report is generated and how often you want social interactions between swarms. 
 
 ##### CancelSwarming
 Not implemented yet, but seems useful.
