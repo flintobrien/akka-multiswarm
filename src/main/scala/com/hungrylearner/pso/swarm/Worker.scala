@@ -1,0 +1,46 @@
+package com.hungrylearner.pso.swarm
+
+import com.hungrylearner.pso.swarm.Report.{Progress, ProgressReport}
+import akka.actor.ActorRef
+import com.hungrylearner.pso.particle.EvaluatedPosition
+
+/**
+ * A Worker does the actual work during swarming. Workers work and don't supervise other
+ * workers.
+ *
+ * @tparam F Fitness
+ * @tparam P Particle backing store
+ */
+trait Worker[F,P]
+
+/**
+ * A Supervisor supervises child workers (or child supervisors) by evaluating each ProgressReport
+ * and deciding what to tell higher supervisors and children.
+ *
+ * @tparam F Fitness
+ * @tparam P Particle backing store
+ */
+trait Supervisor[F,P] extends Worker[F,P] {
+
+  /**
+   * We received a ProgressReport from a child. We can use it to update our best position,
+   * tell our parent, tell our children, or do nothing with this report. We can also decide
+   * to wait for all children to catch up and complete the specified iteration before doing
+   * anything.
+   */
+  def onProgressReport( progressReport: ProgressReport[F,P], originator: ActorRef): Unit
+
+  /**
+   * Decide if and when to influence children by sending them knowledge of a (potentially)
+   * better position. The position sent is usually the region's current bestPosition.
+   *
+   * @param evaluatedPosition The position given us by the Supervisor.
+   * @param iteration The iteration of the child when the progress report was generated.
+   * @param progress The current progress of our children for the reported iteration. This can be
+   *                 used in the decision of when to influence children. For example, we could
+   *                 wait on influencing children until all children have reported their progress
+   *                 has completed for the given command and iteration.
+   */
+  protected def tellChildren( evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, originator: ActorRef)
+
+}
