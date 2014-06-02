@@ -47,7 +47,7 @@ A *ReportingStrategy* controls what gets reported to parent swarms and how often
 
 ### Commands
 
-The following commands can be sent to each swarm. By default, when a command it sent to a multiswarm, it trickles down to all LocalSwarms.
+The following commands can be sent to each swarm. By default, when a command is sent to a multiswarm, it trickles down to all LocalSwarms.
 
 ##### SwarmOneIteration
 Swarm for one iteration and wait for another command. When the SwarmOneIteration has completed, a SwarmOneIterationCompleted report is generated with the current best position. The swarm's *ReportingStrategy* decides whether to let the report go up to the parent or not.
