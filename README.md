@@ -39,3 +39,14 @@ in a multi-swarm system.
 
 **ReportingStrategy** — Controls what gets reported to parent swarms and how often. The *ReportingStrategy* can be different for local and regional swarms. For example, *ContinuousLocalReporting* sends a report when each iteration has completed; while a *PeriodicLocalReporting* strategy reports only every 50 iterations (the number is configurable).
 
+Reports are important because the *RegionalSwarms* don't do anything until they receive a report from a child. There are no social interactions between swarms when there is no report sent to a *RegionalSwarm*. If you don't want a lot of social interaction between swarms, you can throttle it in the *LocalSwarm's* *ReportingStrategy* or with a different *RegionalSupervisor* or *SocialInfluence*. If you want all reports to propogate up to a graphical display, but not be shared among siblings, choose *ContinuousLocalReporting* and a different *RegionalSupervisor* or *LocalSocialInfluence* strategy.
+
+### Commands
+
+The following commands can be sent to each swarm. By default, when a command it sent to a multiswarm, it trickles down to all LocalSwarms.
+
+**SwarmOneIteration** — Swarm for one iteration and wait for another command. When the SwarmAround is complete, a SwarmAroundCompleted report will be generated. The swarm's *ReportingStrategy* decide to let the report go through or not.
+ 
+**SwarmAround**( iterations: Int) — Swarm around for a number of iterations, then wait for another command. If the simulation should run for 1000 iterations, you can send 1000 SwarmOneIteration, 100 SwarmAround(10) or one SwarmAround(1000) message. The difference is how often a *SwarmAroundCompleted* report is generated and how often you want social interactions between swarms. When the SwarmAround is completed, a SwarmAroundCompleted report will be generated with a best position. The swarm's *ReportingStrategy* decides whether to let the report go up to the parent or not.
+
+**CancelSwarming** — Not implemented yet, but sounds useful.
