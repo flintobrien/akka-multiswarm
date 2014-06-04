@@ -15,7 +15,7 @@ Scala Akka actor-based PSO (Particle Swarm Optimization) with multiple swarms
 
 ### Local and Regional Swarms
 
-![Local and Regional Swarms](https://github.com/gec/reefgui/raw/master/swarms.png
+![Local and Regional Swarms](https://github.com/flintobrien/akka-multiswarm/raw/master/swarms.png)
 
 )A single swarm is a *LocalSwarm* which runs inside a single actor and contains the particles and one best position. A *LocalSwarm* is composed of a **LocalSwarmActor** which handles messaging and a **LocalSwarmIntelligence** which does the actual work for each iteration. A *LocalSwarmIntelligence* can have as many particles and iterations as you configure.
 
