@@ -22,7 +22,7 @@ object LocalWorkerImplSpec extends Mockito {
   particle.position returns mutablePosition
   particle.update( anyInt, any[Position[Int,Int]]) returns position
 
-  def makeParticle( simulationContext: SimulationContext, index: Int) = particle
+  def makeParticle( swarmIndex: Int, particleIndex: Int, particleCount: Int) = particle
 
   def makeActorContext( self: TestProbe, parent: TestProbe) = {
     val context = mock[ActorContext]

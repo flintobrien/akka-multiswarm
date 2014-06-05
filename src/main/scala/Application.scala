@@ -87,7 +87,7 @@ object Simulation {
 
     val particleCount = 3
     val simulationContext = SimulationContext( iterations, system)
-    def makeParticle( simulationContext: SimulationContext, index: Int) = new ParticleDVD(simulationContext,  particleContext, index)
+    def makeParticle( swarmIndex: Int, particleIndex: Int, particleCount: Int) = new ParticleDVD(simulationContext,  particleContext, particleIndex)
 
     new LocalSwarmConfig[Double,DenseVector[Double]]( particleCount, makeParticle, simulationContext)
   }

@@ -28,7 +28,7 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
   /**
    * The initial position is iteration 0. Iteration is incremented to 1 at the start of the first iteration.
    */
-  private val particles = List.tabulate[Particle[F,P]]( config.particleCount) { i => config.makeParticle( config.context, i) }
+  private val particles = List.tabulate[Particle[F,P]]( config.particleCount) { i => config.makeParticle( childIndex, i, config.particleCount) }
   override protected var bestPosition: Position[F,P] = particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition
   protected var state = INTIALIZED
   protected var iteration = 0

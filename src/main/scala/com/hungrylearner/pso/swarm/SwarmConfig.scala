@@ -12,17 +12,24 @@ class RegionalSwarmConfig[F,P]( childCount: Int,
                              val childrenConfig: SwarmConfig[F,P],
                              val childName: String,
                              val makeChildSwarm: (ActorContext,Int)=>SwarmActor[F,P],
-//                             val makeChildSwarm: (SwarmConfig[F,P],Int)=>Swarm[F,P],
-//                             val childSwarmIntelligenceFactory: (ActorContext,Int) => SwarmIntelligence[F,P],
                              override val context: SimulationContext) extends SwarmConfig[F,P]( childCount, context) {
 
   override val descendantParticleCount = childCount * childrenConfig.descendantParticleCount
   override val descendantSwarmCount = childCount * childrenConfig.descendantSwarmCount
 }
 
-
+/**
+ *
+ * @param particleCount The number of particles in this swarm.
+ * @param makeParticle (swarmIndex, particleIndex, particleCount) => Particle[F,P]
+ *                     The swarmIndex is useful when each swarm needs to search different regions
+ *                     of the overall particle space.
+ * @param context SimulationContext
+ * @tparam F Fitness
+ * @tparam P Particle backing store
+ */
 class LocalSwarmConfig[F,P]( val particleCount: Int,
-                             val makeParticle: (SimulationContext, Int) => Particle[F,P],
+                             val makeParticle: (Int, Int, Int) => Particle[F,P],
                              override val context: SimulationContext) extends SwarmConfig[F,P]( particleCount, context) {
 
   override val descendantParticleCount = particleCount
