@@ -62,7 +62,7 @@ package object swarm {
     val SWARMING_ONE_ITERATION = Value
     val SWARMING_AROUND = Value
     val RESTING = Value
-    val COMPLETE = Value
+    val SWARMING_COMPLETED = Value
   }
 
 }

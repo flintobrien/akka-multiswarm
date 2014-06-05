@@ -22,6 +22,16 @@ trait LocalTerminateOnMaxIterations[F,P] extends LocalTerminateCriteria[F,P] {
 }
 
 
+/**
+ * TODO: How should this be used? The current RegionalSupervisor doesn't test for TerminateCriteria,
+ * it just gets reports from below. Shouldn't we test to see that all children have met the
+ * criteria, then do something nice? Does RegionalSupervisor need a state to report on?
+ *
+ * OR maybe we don't need this at all! Maybe it's just the Progress.Completed that says when we're done.
+ *
+ * @tparam F
+ * @tparam P
+ */
 trait RegionalTerminateCriteria[F,P] extends TerminateCriteria[F,P] {
   this: RegionalId[F,P] =>
 }

@@ -43,7 +43,7 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
 
     iterationsLeftInSwarmAround = clipIterationsToConfiguredMax( iterations)
 
-    if( state != COMPLETE && iterationsLeftInSwarmAround > 0) {
+    if( state != SWARMING_COMPLETED && iterationsLeftInSwarmAround > 0) {
       state = SWARMING_AROUND
       onOneIteration( bestPosition)
     } // TODO: else what should we do? Report invalid command?
@@ -66,7 +66,7 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
 
     if( terminateCriteriaMet( iteration)) {
 
-      state = COMPLETE
+      state = SWARMING_COMPLETED
       reportingStrategy.reportSwarmingCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
 
     } else {
@@ -88,7 +88,7 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
 
   def swarmAroundCompleted() = {
     if( terminateCriteriaMet( iteration)) {
-      state = COMPLETE
+      state = SWARMING_COMPLETED
       reportingStrategy.reportSwarmingCompleted(childIndex, EvaluatedPosition(bestPosition, isBest = true), iteration, ProgressOneOfOne)
     } else {
       state = RESTING

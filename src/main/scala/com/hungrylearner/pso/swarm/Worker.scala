@@ -17,6 +17,10 @@ trait Worker[F,P]
  * A Supervisor supervises child workers (or child supervisors) by evaluating each ProgressReport
  * and deciding what to tell higher supervisors and children.
  *
+ * TODO: Should we have a state? It might be nice to report COMPLETE.
+ *
+ * TODO: When do we clean up child actors?
+ *
  * @tparam F Fitness
  * @tparam P Particle backing store
  */
