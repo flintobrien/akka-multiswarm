@@ -1,23 +1,25 @@
 akka-multiswarm
 ===============
 
-Scala Akka actor-based PSO (Particle Swarm Optimization) with multiple swarms
+Scala Akka, actor-based PSO (Particle Swarm Optimization) with multiple swarms.
+
+See: Wikipedia [PSO](http://en.wikipedia.org/wiki/Particle_swarm_optimization) and [Multi-swarm optimization](http://en.wikipedia.org/wiki/Multi-swarm_optimization) for general information.
 
 ### Goals
 
-* Single swarm or multi-swarm
 * Extensible framework for building PSOs with various social strategies.
   * Each level in the swarm hierarchy can have a different social strategy.
   * Available strategies can be mixed and matched or create you're own.
+* Written in Scala with Akka actors to coordinate multiple swarms.
+* Single swarm or multi-swarm
 * Use with any particle type and fitness type. A sample implementation using [Breeze](https://github.com/scalanlp/breeze) DenseVector[Double] is included.
-* Use Akka actors to coordinate multiple swarms.
 * Fast. TODO: Need performance tests.
 
 ### Local and Regional Swarms
 
 ![Local and Regional Swarms](https://github.com/flintobrien/akka-multiswarm/raw/master/swarms.png)
 
-A single swarm is a *LocalSwarm* which runs inside a single actor and contains the particles and one best position. A *LocalSwarm* is composed of a **LocalSwarmActor** which handles messaging and a **LocalSwarmIntelligence** which does the actual work for each iteration. A *LocalSwarmIntelligence* can have as many particles and iterations as you configure.
+A *LocalSwarm* is a single swarm which runs inside a single actor and contains the particles and one best position. A *LocalSwarm* is composed of a **LocalSwarmActor** which handles messaging and a **LocalSwarmIntelligence** which does the actual work for each iteration. A *LocalSwarmIntelligence* can have as many particles and iterations as you configure.
 
 A *RegionalSwarm* supervises multiple child swarms and coordinates their social interactions. It has a single best position representing the best position reported from its children. The children can be configured as *RegionalSwarms* or *LocalSwarms*. You can configure any number of *RegionalSwarm* hierarchies to go as deep and as wide (more children) as needed. A *RegionalSwarm* is composed of a **RegionalSwarmActor** which handles messaging and a **RegionalSwarmIntelligence** which does the actual work.
 
@@ -31,7 +33,7 @@ A swarm does not talk to its siblings directly. It can only send reports to its 
 
 ![Swarm Intelligence](https://github.com/flintobrien/akka-multiswarm/raw/master/swarmintelligence.png)
 
-A **SwarmActor** recieves messages and hands work off to a **SwarmIntelligence**. A *SwarmIntelligence* encompasses multiple aspects of the swarms behavior. Each aspect is documented below. In general, a *SwarmIntelligence* is composed by choosing a particular implementation of each aspect to get the desired overall social behavior.
+A **SwarmActor** recieves messages and hands work off to a **SwarmIntelligence**. A *SwarmIntelligence* encompasses multiple aspects of the swarms behavior. Each aspect is documented below. In general, a *SwarmIntelligence* is composed with a particular implementation of each aspect to get the desired overall social behavior.
 
 #### Id
 Refers to the *Id* from psychoanalysis. It contains innate information and processes used by the other parts of a SwarmIntelligence. Of these, *bestPosition* and actor *context* are most prominent.
