@@ -23,7 +23,7 @@ trait LocalWorker[F,P] extends Worker[F,P] {
  * Created by flint on 6/1/14.
  */
 trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
-  this: LocalId[F,P] with LocalSocialInfluence[F,P] =>
+  this: LocalId[F,P] with LocalSocialInfluence[F,P] with TerminateCriteria[F,P] =>
 
   /**
    * The initial position is iteration 0. Iteration is incremented to 1 at the start of the first iteration.
@@ -43,7 +43,7 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
 
     iterationsLeftInSwarmAround = clipIterationsToConfiguredMax( iterations)
 
-    if( iterationsLeftInSwarmAround > 0) {
+    if( state != COMPLETE && iterationsLeftInSwarmAround > 0) {
       state = SWARMING_AROUND
       onOneIteration( bestPosition)
     } // TODO: else what should we do? Report invalid command?
@@ -64,7 +64,12 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
 
   def oneIterationCompleted() = {
 
-    if( iteration < config.context.iterations) {
+    if( terminateCriteriaMet( iteration)) {
+
+      state = COMPLETE
+      reportingStrategy.reportSwarmingCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
+
+    } else {
 
       if( state == SWARMING_AROUND) {
         iterationsLeftInSwarmAround -= 1
@@ -78,23 +83,18 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
         state = RESTING
         reportingStrategy.reportOneIterationCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
       }
-
-    } else {
-      state = COMPLETE
-      reportingStrategy.reportSwarmingCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
     }
   }
 
   def swarmAroundCompleted() = {
-    if( iteration < config.context.iterations) {
-      state = RESTING
-      reportingStrategy.reportSwarmAroundCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
-    } else {
+    if( terminateCriteriaMet( iteration)) {
       state = COMPLETE
       reportingStrategy.reportSwarmingCompleted(childIndex, EvaluatedPosition(bestPosition, isBest = true), iteration, ProgressOneOfOne)
+    } else {
+      state = RESTING
+      reportingStrategy.reportSwarmAroundCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
     }
   }
-
 
 
   def clipIterationsToConfiguredMax( iterations: Int): Int = {

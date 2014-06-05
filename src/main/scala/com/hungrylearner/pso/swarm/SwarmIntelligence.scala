@@ -23,6 +23,7 @@ trait SwarmIntelligence[F,P]
   extends Id[F,P]
   with Worker[F,P]
   with SocialInfluence[F,P]
+  with TerminateCriteria[F,P]
 
 /**
  * A LocalSwarmIntelligence has no children and manages a set of particles with local best.
@@ -35,6 +36,7 @@ trait LocalSwarmIntelligence[F,P]
   with LocalId[F,P]
   with LocalWorker[F,P]
   with LocalSocialInfluence[F,P]
+  with LocalTerminateCriteria[F,P]
 
 /**
  * A RegionalSwarmIntelligence has child swarms to supervise and presents itself as, more or less,
@@ -50,3 +52,4 @@ trait RegionalSwarmIntelligence[F,P]
   with RegionalId[F,P]
   with RegionalSupervisor[F,P]
   with RegionalSocialInfluence[F,P]
+  with RegionalTerminateCriteria[F,P]

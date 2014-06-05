@@ -14,6 +14,8 @@ import akka.event.LoggingAdapter
 trait Id[F,P] {
 //  this: ReportingStrategy[F,P] =>
 
+//  type DerivedSwarmConfig[F,P] <: SwarmConfig[F,P]
+  val config: SwarmConfig[F,P]
   val childIndex: Int
 
   /** The current known best position known by the swarm */
@@ -39,7 +41,7 @@ trait Id[F,P] {
  */
 trait LocalId[F,P] extends Id[F,P] {
 
-  val config: LocalSwarmConfig[F,P]
+  override val config: LocalSwarmConfig[F,P]
   val reportingStrategy: LocalReportingStrategy[F,P]
 
 }
@@ -52,7 +54,7 @@ trait LocalId[F,P] extends Id[F,P] {
 trait RegionalId[F,P] extends Id[F,P] {
   this: RegionalSupervisor[F,P] =>
 
-  val config: RegionalSwarmConfig[F,P]
+  override val config: RegionalSwarmConfig[F,P]
   val reportingStrategy: RegionalReportingStrategy[F,P]
 
   override def onCommand( command: Command) = sendToAllChildren( command)
