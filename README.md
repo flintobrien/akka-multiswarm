@@ -41,14 +41,17 @@ Refers to the *Id* from psychoanalysis. It contains innate information and proce
 #### Worker & Supervisor
 A *Worker* updates all particles for each iteration of the swarm. For a *RegionalSwarm*, the *Worker* is a *RegionalSupervisor* which manages sub swarms (which themselves can be local or regional swarms). For example, an *AsyncRegionalSupervisor* receives a report from a child and immediated shares the current best position with all children. A different supervisor could be chosen which waits for all children to report for a particular iteration, and only then; send the best position to all children.
 
-#### SocialInfluence
-*SocialInfluence* determines what is done when a swarm learns of an *InfluentialPosition* from its parent swarm
-in a multi-swarm system.
-
 #### ReportingStrategy
 A *ReportingStrategy* controls what gets reported to parent swarms and how often. The *ReportingStrategy* can be different for local and regional swarms. For example, *ContinuousLocalReporting* sends a report when each iteration has completed; while a *PeriodicLocalReporting* strategy reports only every 10 iterations (configurable, see SwarmAround(iterations) command below).
 
 **Reports are important because the *RegionalSwarms* don't do anything until they receive a report from a child.** There are no social interactions between swarms when there is no report sent to a *RegionalSwarm*. If you don't want a lot of social interaction between swarms, you can throttle it in the *LocalSwarm's* *ReportingStrategy* or with a different *RegionalSupervisor* or *SocialInfluence*. If you want all reports to propogate up to a graphical display, but not be shared among siblings, choose *ContinuousLocalReporting* and a different *RegionalSupervisor* or *LocalSocialInfluence* strategy.
+
+#### SocialInfluence
+*SocialInfluence* determines what is done when a swarm learns of an *InfluentialPosition* from its parent swarm
+in a multi-swarm system.
+
+#### Terminate Criteria
+Decide when to terminate all swarming. This can be based on multiple criteria including max iterations. There are standard traits for *LocalTerminateOnMaxIterations* and *RegionalTerminateOnMaxIterations*.
 
 ### Commands
 
