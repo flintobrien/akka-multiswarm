@@ -79,10 +79,6 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   */
   override def onProgressReport( childReport: ProgressReport[F,P], originator: ActorRef): Unit = {
 
-    // Option of waiting for all children before sending to parent or children?
-    // Send to parent: always, when all children completed for iteration, when position is better?
-    // Send may be different for different completed types.
-
     val regionalProgress = calculateRegionalProgress( childReport)
     val evaluatedPosition = evaluatePosition( childReport)
     updateBestPosition( evaluatedPosition)

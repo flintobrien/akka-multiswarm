@@ -6,9 +6,6 @@ import breeze.numerics.abs
 import com.hungrylearner.pso.breeze._
 import com.hungrylearner.pso.swarm._
 import com.hungrylearner.pso.swarm.Report.ProgressReport
-import com.hungrylearner.pso.swarm.Report.ProgressReport
-import com.hungrylearner.pso.swarm.SimulationContext
-import com.hungrylearner.pso.swarm.SwarmAround
 import scala.concurrent.duration._
 
 
@@ -26,10 +23,6 @@ class MyLocalSwarmIntelligence[F,P]( override val config: LocalSwarmConfig[F,P],
   override protected val Logger: LoggingAdapter = Logging.getLogger(context.system, this)
   override val reportingStrategy: LocalReportingStrategy[F, P] = new MyReportingStrategy[F,P]( context.parent)
 }
-
-//  with ParentReporter[F,P]
-//  with PeriodicLocalReporting[F,P]
-//  with LocalSocialInfluence[F,P]
 
 class MyMutablePosition( initialPosition: DenseVector[Double], bounds: Array[(Double,Double)]) extends MutablePositionDVD( initialPosition, bounds) {
 
