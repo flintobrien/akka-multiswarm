@@ -1,18 +1,19 @@
 package com.hungrylearner.pso.swarm
 
+import com.hungrylearner.pso.swarm.Report.{Progress, ProgressReport}
+
 trait TerminateCriteria[F,P] {
-  this: Id[F,P] =>
-  def terminateCriteriaMet( iteration: Int): Boolean
 }
 
-//trait TerminateOnMaxIterations[F,P] extends TerminationCriteria[F,P] {
-//  this: Id[F,P] =>
-//
-//  override def terminationCriteriaMet( iteration: Int): Boolean = iteration >= config.context.iterations
-//}
-
+/**
+ * Terminate criteria used by a LocalWorker.
+ *
+ * @tparam F Fitness
+ * @tparam P Particle backing store
+ */
 trait LocalTerminateCriteria[F,P] extends TerminateCriteria[F,P] {
   this: LocalId[F,P] =>
+  def terminateCriteriaMet( iteration: Int): Boolean
 }
 
 trait LocalTerminateOnMaxIterations[F,P] extends LocalTerminateCriteria[F,P] {
@@ -23,22 +24,29 @@ trait LocalTerminateOnMaxIterations[F,P] extends LocalTerminateCriteria[F,P] {
 
 
 /**
- * TODO: How should this be used? The current RegionalSupervisor doesn't test for TerminateCriteria,
- * it just gets reports from below. Shouldn't we test to see that all children have met the
- * criteria, then do something nice? Does RegionalSupervisor need a state to report on?
+ * Terminate criteria used by a RegionalSupervisor.
  *
- * OR maybe we don't need this at all! Maybe it's just the Progress.Completed that says when we're done.
+ * TODO: RegionalSupervisor is not using it yet.
  *
- * @tparam F
- * @tparam P
+ * @tparam F Fitness
+ * @tparam P Particle backing store
  */
 trait RegionalTerminateCriteria[F,P] extends TerminateCriteria[F,P] {
   this: RegionalId[F,P] =>
+  def terminateCriteriaMet( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean
 }
 
-trait RegionalTerminateOnMaxIterations[F,P] extends RegionalTerminateCriteria[F,P] {
+trait RegionalTerminateWhenOneChildTerminates[F,P] extends RegionalTerminateCriteria[F,P] {
   this: RegionalId[F,P] =>
 
-  override def terminateCriteriaMet( iteration: Int): Boolean = iteration >= config.context.iterations
+  override def terminateCriteriaMet( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean =
+    childReport.completedType == CompletedType.SwarmingCompleted
+}
+
+trait RegionalTerminateWhenAllChildrenTerminate[F,P] extends RegionalTerminateCriteria[F,P] {
+  this: RegionalId[F,P] =>
+
+  override def terminateCriteriaMet( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean =
+    childReport.completedType == CompletedType.SwarmingCompleted && regionalProgress.completed
 }
 

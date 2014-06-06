@@ -23,7 +23,7 @@ trait LocalWorker[F,P] extends Worker[F,P] {
  * Created by flint on 6/1/14.
  */
 trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
-  this: LocalId[F,P] with LocalSocialInfluence[F,P] with TerminateCriteria[F,P] =>
+  this: LocalId[F,P] with LocalSocialInfluence[F,P] with LocalTerminateCriteria[F,P] =>
 
   /**
    * The initial position is iteration 0. Iteration is incremented to 1 at the start of the first iteration.

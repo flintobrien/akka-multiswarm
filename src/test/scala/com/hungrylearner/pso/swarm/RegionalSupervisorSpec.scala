@@ -52,14 +52,14 @@ class RegionalSupervisorSpec extends Specification with Mockito {
                                           override val childIndex: Int,
                                           override val context: ActorContext,
                                           override val reportingStrategy: RegionalReportingStrategy[F,P] )
-    extends RegionalSupervisor[F, P] with RegionalId[F,P]
+    extends RegionalSupervisor[F, P] with RegionalId[F,P] with RegionalTerminateWhenAllChildrenTerminate[F,P]
   {
 
     override protected var bestPosition: Position[F, P] = _
 
     override protected val Logger: LoggingAdapter = mock[LoggingAdapter]
 
-    def proxy_makeProgress(progressReport: ProgressReport[F,P]) = makeProgress( progressReport)
+    def proxy_makeProgress(progressReport: ProgressReport[F,P]) = calculateRegionalProgress( progressReport)
 
     def proxy_tellChildren(evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, originator: ActorRef) = {}
     override protected def tellChildren(evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, originator: ActorRef) =

@@ -58,7 +58,7 @@ object RegionalSupervisor {
   *
   */
 trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
-  this: RegionalId[F,P] =>
+  this: RegionalId[F,P] with RegionalTerminateCriteria[F,P] =>
 
   import RegionalSupervisor._
 
@@ -77,17 +77,26 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   * - Decide if/when to tell our children.
   *
   */
-  override def onProgressReport( progressReport: ProgressReport[F,P], originator: ActorRef): Unit = {
+  override def onProgressReport( childReport: ProgressReport[F,P], originator: ActorRef): Unit = {
 
     // Option of waiting for all children before sending to parent or children?
     // Send to parent: always, when all children completed for iteration, when position is better?
     // Send may be different for different completed types.
 
-    val progress = makeProgress( progressReport)
-    val evaluatedPosition = evaluatePosition( progressReport)
+    val regionalProgress = calculateRegionalProgress( childReport)
+    val evaluatedPosition = evaluatePosition( childReport)
     updateBestPosition( evaluatedPosition)
-    reportingStrategy.reportForRegion( progressReport, childIndex, evaluatedPosition, progress)
-    tellChildren( evaluatedPosition, progressReport.iteration, progress, originator)
+
+    if( terminateCriteriaMet( childReport, regionalProgress)) {
+      // TODO: Set our state and terminate all children.
+      // How does this change the regional report we send out?
+    }
+    // TODO: We're sending the child's position. Shouldn't we be sending our best?
+    reportingStrategy.reportForRegion( childReport, childIndex, evaluatedPosition, regionalProgress)
+
+    // TODO: We're sending the child's position. Shouldn't we telling children about our best
+    // or not telling if they already have it?
+    tellChildren( evaluatedPosition, childReport.iteration, regionalProgress, originator)
   }
 
   def updateBestPosition( evaluatedPosition: EvaluatedPosition[F,P]) =
@@ -107,7 +116,7 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
     EvaluatedPosition( progressReport.evaluatedPosition.position, isRegionalBest)
   }
 
-  protected def makeProgress( progressReport: ProgressReport[F,P]): Progress = {
+  protected def calculateRegionalProgress( progressReport: ProgressReport[F,P]): Progress = {
     val descendantCompletedCount = descendantProgressCounters.incrementProgressCount( progressReport)
     val descendantProgress = ProgressFraction( descendantCompletedCount, config.descendantSwarmCount)
 
