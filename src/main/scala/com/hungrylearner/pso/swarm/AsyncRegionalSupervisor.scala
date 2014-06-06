@@ -5,20 +5,6 @@ import com.hungrylearner.pso.swarm.Report._
 import akka.actor.ActorRef
 
 
-
-object AsyncRegionalSupervisor {
-  import CompletedType._
-
-  def makeProgressCounts: collection.immutable.Map[CompletedType, collection.mutable.Map[Int,Int]] =
-    collection.immutable.Map[CompletedType, collection.mutable.Map[Int,Int]](
-      SwarmOneIterationCompleted -> collection.mutable.Map[Int,Int](),
-      SwarmAroundCompleted -> collection.mutable.Map[Int,Int](),
-      SwarmingCompleted -> collection.mutable.Map[Int,Int]()
-    )
-
-}
-
-
 /**
  * Supervise a region of local swarms. Listen for task completed events, report progress to parents, and update children.
  *
@@ -33,25 +19,6 @@ object AsyncRegionalSupervisor {
  */
 trait AsyncRegionalSupervisor[F,P] extends RegionalSupervisor[F,P] {
   this: RegionalId[F,P] =>
-
-  import AsyncRegionalSupervisor._
-  import CompletedType._
-
-  // Keep track of progress counts for each CommandType for each reported iteration.
-  // Seems like we should own this information, but the reporter is the only one using it now (via makeUpdatedTaskReport)
-  // Map of CommandType to (map of Iteration to progress counts)
-  //
-  protected val progressCounts: collection.immutable.Map[CompletedType, collection.mutable.Map[Int,Int]] = makeProgressCounts
-
-  override protected def makeProgress( progressCount: Int): Progress = {
-
-    val childrenCompleted = ProgressFraction( progressCount, config.childCount)
-    // TODO: No! This is assuming children are completed.
-    val descendantsCompleted = ProgressFraction( progressCount * config.childrenConfig.descendantSwarmCount, config.descendantSwarmCount)
-    val completed = progressCount >= config.childCount
-
-    Progress( childrenCompleted, descendantsCompleted, completed)
-  }
 
 
   /**
@@ -72,14 +39,6 @@ trait AsyncRegionalSupervisor[F,P] extends RegionalSupervisor[F,P] {
     // For now, if we get some information about a fitter position, we tell the children.
     if( evaluatedPosition.isBest)
       sendToChildren( InfluentialPosition[F,P]( evaluatedPosition, iteration), originator) // Don't send to originator.
-  }
-
-
-  override protected def incrementProgressCount( progressReport: ProgressReport[F,P]): Int = {
-    val counters = progressCounts.get( progressReport.completedType).get
-    val childrenCompletedCount = counters.getOrElse( progressReport.iteration, 0) + 1
-    counters += (progressReport.iteration -> childrenCompletedCount)
-    childrenCompletedCount
   }
 
 }

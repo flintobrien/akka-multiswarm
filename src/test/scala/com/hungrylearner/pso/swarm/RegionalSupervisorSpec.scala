@@ -59,14 +59,33 @@ class RegionalSupervisorSpec extends Specification with Mockito {
 
     override protected val Logger: LoggingAdapter = mock[LoggingAdapter]
 
-    override protected def incrementProgressCount(progressReport: ProgressReport[F,P]) = 1
-    override protected def makeProgress(progressCount: Int) = ProgressOneOfOne
+    def proxy_makeProgress(progressReport: ProgressReport[F,P]) = makeProgress( progressReport)
 
     def proxy_tellChildren(evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, originator: ActorRef) = {}
     override protected def tellChildren(evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, originator: ActorRef) =
       proxy_tellChildren( evaluatedPosition, iteration, progress, originator)
   }
 
+
+  "ProgressCounters" should {
+    import RegionalSupervisor._
+
+    val ep = mock[EvaluatedPosition[Int,Int]]
+
+    "  Increment counts and return 0 for unseen CompletedType or iteration." in {
+      val counters = new ProgressCounters[Int,Int]
+      val pr1 = ProgressReport[Int,Int](SwarmOneIterationCompleted, 1, ep, iteration=1, ProgressOneOfOne)
+      val pr2 = ProgressReport[Int,Int](SwarmAroundCompleted, 1, ep, iteration=1, ProgressOneOfOne)
+      val pr3 = ProgressReport[Int,Int](SwarmAroundCompleted, 2, ep, iteration=2, ProgressOneOfOne)
+
+      counters.progressCount( pr1) must beEqualTo( 0)
+      counters.incrementProgressCount( pr1) must beEqualTo( 1)
+      counters.progressCount( pr2) must beEqualTo( 0)
+      counters.progressCount( pr3) must beEqualTo( 0)
+      counters.incrementProgressCount( pr2) must beEqualTo( 1)
+      counters.incrementProgressCount( pr3) must beEqualTo( 1)
+    }
+  }
 
   "RegionalSupervisor" should {
 
@@ -109,6 +128,8 @@ class RegionalSupervisorSpec extends Specification with Mockito {
     "  onProgressReport should report new best position to parent" in new AkkaTestkitSpecs2Support {
 
       val config = mock[RegionalSwarmConfig[Int,Int]]
+      config.childCount returns 1
+      config.descendantSwarmCount returns 1
 
       val childIndex = 0
       val iteration = 1
@@ -138,8 +159,50 @@ class RegionalSupervisorSpec extends Specification with Mockito {
       val prBetter = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epBetter, iteration, ProgressOneOfOne)
       underTest.onProgressReport( prBetter, originator.ref)
 
-      parent.expectMsg( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epBetter, iteration, ProgressOneOfOne))
-      there was one(underTest).proxy_tellChildren(epBetter, iteration, ProgressOneOfOne, originator.ref)
+      val progressTwoOfOne = Progress( ProgressFraction(2,1), ProgressFraction(2,1), completed=true)
+      parent.expectMsg( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epBetter, iteration, progressTwoOfOne))
+      there was one(underTest).proxy_tellChildren(epBetter, iteration, progressTwoOfOne, originator.ref)
+    }
+
+    "  makeProgress should keep count of child progress." in new AkkaTestkitSpecs2Support {
+
+      val config = mock[RegionalSwarmConfig[Int,Int]]
+      config.childCount returns 2
+      config.descendantSwarmCount returns 8 // Generated reports assume we have 2 children with 4 descendants each
+
+      val childIndex = 0
+      val position = new PositionII( 1,1)
+      val epFalse = EvaluatedPosition( position, isBest=false)
+
+      val selfy = TestProbe()
+      val parent = TestProbe()
+      val context = makeActorContext( selfy, parent)
+      val reportingStrategy = new ReportingStrategyProxy[Int,Int]( parent.ref)
+
+      val underTest = new RegionalSupervisorUnderTest[Int,Int]( config, childIndex, context, reportingStrategy)
+
+      val child0of2desc1of4 = Progress( ProgressFraction(0,2), ProgressFraction(1,4), completed=false)
+      val child1a = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epFalse, iteration=1, child0of2desc1of4)
+      underTest.proxy_makeProgress( child1a) must beEqualTo( Progress( ProgressFraction(0,2), ProgressFraction(1,8), completed=false))
+
+      val child1of2desc2of4 = Progress( ProgressFraction(1,2), ProgressFraction(2,4), completed=false)
+      val child1b = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epFalse, iteration=1, child1of2desc2of4)
+      underTest.proxy_makeProgress( child1b) must beEqualTo( Progress( ProgressFraction(0,2), ProgressFraction(2,8), completed=false))
+
+      val child1of2desc3of4 = Progress( ProgressFraction(1,2), ProgressFraction(3,4), completed=false)
+      val child1c = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epFalse, iteration=1, child1of2desc3of4)
+      underTest.proxy_makeProgress( child1c) must beEqualTo( Progress( ProgressFraction(0,2), ProgressFraction(3,8), completed=false))
+
+      val child2of2desc4of4 = Progress( ProgressFraction(2,2), ProgressFraction(4,4), completed=true)
+      val child1d = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epFalse, iteration=1, child2of2desc4of4)
+      underTest.proxy_makeProgress( child1d) must beEqualTo( Progress( ProgressFraction(1,2), ProgressFraction(4,8), completed=false))
+
+      // Use child1 messages as if they were from child2
+      underTest.proxy_makeProgress( child1a) must beEqualTo( Progress( ProgressFraction(1,2), ProgressFraction(5,8), completed=false))
+      underTest.proxy_makeProgress( child1b) must beEqualTo( Progress( ProgressFraction(1,2), ProgressFraction(6,8), completed=false))
+      underTest.proxy_makeProgress( child1c) must beEqualTo( Progress( ProgressFraction(1,2), ProgressFraction(7,8), completed=false))
+      // finally, we reprot completed=true!
+      underTest.proxy_makeProgress( child1d) must beEqualTo( Progress( ProgressFraction(2,2), ProgressFraction(8,8), completed=true))
     }
 
   }
