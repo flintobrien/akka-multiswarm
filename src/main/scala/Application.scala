@@ -27,6 +27,7 @@ class MyLocalSwarmIntelligence[F,P]( override val config: LocalSwarmConfig[F,P],
 class MyMutablePosition( initialPosition: DenseVector[Double], bounds: Array[(Double,Double)]) extends MutablePositionDVD( initialPosition, bounds) {
 
   override def evaluateFitness( v: DenseVector[Double], iteration: Int): Double = {
+    // Simple swarm objective. The best particle is the one wth all values closest to zero.
     sum( abs(v))
   }
 
