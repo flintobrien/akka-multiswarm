@@ -3,7 +3,7 @@ import akka.actor._
 import akka.event.{LoggingAdapter, Logging}
 import breeze.linalg.{DenseVector, sum}
 import breeze.numerics.abs
-import com.hungrylearner.pso.breeze._
+import com.hungrylearner.pso.particle.breezedvd._
 import com.hungrylearner.pso.swarm._
 import com.hungrylearner.pso.swarm.Report.ProgressReport
 import scala.concurrent.duration._

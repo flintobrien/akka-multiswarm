@@ -1,4 +1,4 @@
-package com.hungrylearner.pso.breeze
+package com.hungrylearner.pso.particle.breezedvd
 
 import org.specs2.mutable._
 import org.mockito.Mockito._

@@ -6,7 +6,7 @@ import org.specs2.mock.Mockito
 import org.mockito.Matchers._
 import breeze.linalg.{DenseVector, sum}
 import breeze.numerics.abs
-import com.hungrylearner.pso.breeze.MutablePositionDVD
+import com.hungrylearner.pso.particle.breezedvd.MutablePositionDVD
 
 /**
  * Created by flint on 5/14/14.

@@ -1,4 +1,4 @@
-package com.hungrylearner.pso.breeze
+package com.hungrylearner.pso.particle.breezedvd
 
 import breeze.linalg.DenseVector
 import com.hungrylearner.pso.particle.{Position, MutablePosition}

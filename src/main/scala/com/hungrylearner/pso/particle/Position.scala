@@ -1,5 +1,11 @@
 package com.hungrylearner.pso.particle
 
+/**
+ * Immutable Position.
+ *
+ * @tparam F Fitness
+ * @tparam P Particle backing store
+ */
 trait Position[F,P] extends Ordered[Position[F,P]] {
   def value: P
   def fitness: F
@@ -7,6 +13,12 @@ trait Position[F,P] extends Ordered[Position[F,P]] {
 
 case class EvaluatedPosition[F,P]( position: Position[F,P], isBest: Boolean)
 
+/**
+ * Mutable Position for faster position updates.
+ *
+ * @tparam F Fitness
+ * @tparam P Particle backing store
+ */
 trait MutablePosition[F,P] extends Position[F,P]{
 
   /**
