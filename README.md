@@ -3,7 +3,9 @@ akka-multiswarm
 
 Scala Akka, actor-based PSO (Particle Swarm Optimization) with multiple swarms.
 
-See: Wikipedia [PSO](http://en.wikipedia.org/wiki/Particle_swarm_optimization) and [Multi-swarm optimization](http://en.wikipedia.org/wiki/Multi-swarm_optimization) for general information.
+See Wikipedia [PSO](http://en.wikipedia.org/wiki/Particle_swarm_optimization) and [Multi-swarm optimization](http://en.wikipedia.org/wiki/Multi-swarm_optimization) for general information.
+
+Single swarm usage: see [Application.scala](https://github.com/flintobrien/akka-multiswarm/blob/master/src/main/scala/Application.scala)
 
 ### Goals
 
