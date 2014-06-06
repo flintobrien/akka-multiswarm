@@ -26,11 +26,21 @@ object RegionalSupervisor {
     // Map of CompletedType to (map of Iteration to descendant progress counts)
     val counters: collection.immutable.Map[CompletedType, collection.mutable.Map[Int,Int]] = makeProgressCounts
 
+    /**
+     * return the current progress count for the CompletedType/iteration
+     * @param progressReport The progress report from one of our children.
+     * @return The current count
+     */
     def progressCount( progressReport: ProgressReport[F,P]): Int = {
       val completedTypeCounters = counters.get( progressReport.completedType).get
       completedTypeCounters.getOrElse( progressReport.iteration, 0)
     }
 
+    /**
+     * Increment the progress count for the CompletedType/iteration. Return the new count.
+     * @param progressReport The progress report from one of our children.
+     * @return The incremented count
+     */
     def incrementProgressCount( progressReport: ProgressReport[F,P]): Int = {
       val completedTypeCounters = counters.get( progressReport.completedType).get
       val completedCount = completedTypeCounters.getOrElse( progressReport.iteration, 0) + 1

@@ -193,6 +193,10 @@ class RegionalSupervisorSpec extends Specification with Mockito {
       val child1c = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epFalse, iteration=1, child1of2desc3of4)
       underTest.proxy_makeProgress( child1c) must beEqualTo( Progress( ProgressFraction(0,2), ProgressFraction(3,8), completed=false))
 
+      // Should not affect the counts we're testing because the CompletedType is different
+      val child1Other = ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, epFalse, iteration=1, child0of2desc1of4)
+      underTest.proxy_makeProgress( child1Other) must beEqualTo( Progress( ProgressFraction(0,2), ProgressFraction(1,8), completed=false))
+
       val child2of2desc4of4 = Progress( ProgressFraction(2,2), ProgressFraction(4,4), completed=true)
       val child1d = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epFalse, iteration=1, child2of2desc4of4)
       underTest.proxy_makeProgress( child1d) must beEqualTo( Progress( ProgressFraction(1,2), ProgressFraction(4,8), completed=false))
