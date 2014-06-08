@@ -108,6 +108,10 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
   def receive = {
     case Initialize => initializePso
     case report: ProgressReport[Double,DenseVector[Double]] =>  onReport( report)
+    case Terminated( child) =>
+      log.info( s"LocalSwarmActor '${child.path.name}' Terminated ")
+      context.system.shutdown()
+
     case unknownMessage: AnyRef => log.error( "RunPso.receive: Unknown message {}", unknownMessage)
   }
 
@@ -122,6 +126,7 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
 
 
       swarm = context.actorOf(Props(new LocalSwarmActor[Double,DenseVector[Double]]( LocalSwarmIntelligenceFactory, 0)),  "localSwarm1")
+      context.watch( swarm) // watch for child Terminated
       swarm ! swarmAround
     } else {
       log.error( "Simulation.initializePso swarm already initialized!")
@@ -132,6 +137,10 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
     log.info(  s"++++++++++++++++++++++++++++++++ ProgressReport ${report.iteration} ${report.evaluatedPosition.position.value(0)}")
     if( report.completedType != SwarmingCompleted)
       swarm ! swarmAround
+    else {
+      // Stop the child. Since we're watching, We'll receive a Terminated when child is stopped.
+      context.stop( swarm)
+    }
   }
 }
 
