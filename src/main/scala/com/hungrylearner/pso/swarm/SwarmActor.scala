@@ -31,10 +31,17 @@ class LocalSwarmActor[F,P]( swarmIntelligenceFactory: ( Int, ActorContext) => Lo
 
 object RegionalSwarmActor {
 
+  class ChildSwarmActorProducer[F,P]( config: RegionalSwarmConfig[F,P], childIndex: Int, context: ActorContext) extends IndirectActorProducer
+  {
+    override def actorClass = classOf[SwarmActor[F,P]]
+    override def produce = config.childSwarmActorFactory( context, childIndex)
+  }
+
+
   def makeChildren[F,P]( config: RegionalSwarmConfig[F,P], context: ActorContext): List[ActorRef] = {
     List.tabulate[ActorRef]( config.childCount) { childIndex =>
-      context.actorOf( Props( config.makeChildSwarm( context, childIndex)), name=config.childName+childIndex)
-      //      context.actorOf( Props( config.makeChildSwarm( config.childrenConfig, childIndex)), name=config.childName+childIndex)
+      val props = Props( classOf[ChildSwarmActorProducer[F,P]], config, childIndex, context)
+      context.actorOf( props, name=config.childName+childIndex)
     }
   }
 

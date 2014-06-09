@@ -121,11 +121,11 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
     if( swarm == null) {
       val swarmConfig = makeLocalSwarmConfig( iterations, context.system)
 
-      def LocalSwarmIntelligenceFactory( childIndex: Int, context: ActorContext) =
+      val localSwarmIntelligenceFactory = ( childIndex: Int, context: ActorContext) =>
         new MyLocalSwarmIntelligence[Double,DenseVector[Double]]( swarmConfig, childIndex, context)
 
-
-      swarm = context.actorOf(Props(new LocalSwarmActor[Double,DenseVector[Double]]( LocalSwarmIntelligenceFactory, 0)),  "localSwarm1")
+      val props = Props(classOf[LocalSwarmActor[Double,DenseVector[Double]]], localSwarmIntelligenceFactory, 0)
+      swarm = context.actorOf(props,  "localSwarm1")
       context.watch( swarm) // watch for child Terminated
       swarm ! swarmAround
     } else {
@@ -151,7 +151,7 @@ object Application extends App {
   Logger.debug( "Simulation begin")
 
   val iterations = 100
-  val runPso = system.actorOf(Props(new Simulation( iterations)),  "runPso")
+  val runPso = system.actorOf( Props( classOf[Simulation], iterations),  "runPso")
 
 }
 
