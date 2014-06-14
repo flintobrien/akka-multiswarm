@@ -13,20 +13,22 @@ trait LocalWorker[F,P] extends Worker[F,P] {
   override def onCommand(command: Command) = command match {
 
     case SwarmOneIteration =>
-      if (state != SWARMING_CANCELLED) onOneIteration( bestPosition)
+      if (notDone) onOneIteration( bestPosition)
 
     case SwarmAround( iterations) =>
-      if (state != SWARMING_CANCELLED) onSwarmAround( iterations)
+      if (notDone) onSwarmAround( iterations)
 
     case CancelSwarming =>
-      onCancelSwarming()
+      if (notDone) onCancelSwarming()
 
     case ip: InfluentialPosition[F,P] =>
-      if( state != SWARMING_CANCELLED) onInfluentialPosition( ip) // in LocalSocialInfluence
+      if( notDone) onInfluentialPosition( ip) // in LocalSocialInfluence
 
     case _ =>
       Logger.error( s"LocalWorker unknown command $command")
   }
+
+  protected def notDone = state != SWARMING_CANCELLED && state != SWARMING_COMPLETED
 
   protected def onSwarmAround( iterations: Int): Unit
   protected def onOneIteration( bestForIteration: Position[F,P]): Unit

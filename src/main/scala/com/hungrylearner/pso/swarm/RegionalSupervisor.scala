@@ -62,6 +62,7 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
 
   import RegionalSupervisor._
   import TerminateCriteriaStatus._
+  import CompletedType._
 
   // Keep track of progress counts for each CommandType for each reported iteration.
   // The count is the count of descendants. We'll receive progress reports form children, but that doesn't mean
@@ -87,30 +88,23 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
     val terminateCriteriaStatus = terminateCriteriaMet( childReport, regionalProgress)
     if( terminateCriteriaStatus == TerminateCriteriaMetNow) {
 
-      sendToChildren( CancelSwarming, originator)
-
-      // TODO: should we stop all children or wait for our parent to stop us first? postStop is called in preRestart
-
-      // Termination of an actor proceeds in two steps: first the actor suspends its mailbox
-      // processing and sends a stop command to all its children, then it keeps processing
-      // the internal termination notifications from its children until the last one is gone,
-      // finally terminating itself (invoking postStop, dumping mailbox, publishing
-      // Terminated on the DeathWatch, telling its supervisor). This procedure ensures that
-      // actor system sub-trees terminate in an orderly fashion, propagating the stop
-      // command to the leaves and collecting their confirmation back to the stopped supervisor.
-
-      // TODO: Set our state and terminate all children.
-      // context.children.foreach( context.stop)
+      // We're not going to stop or child actors now. If some of the children are not completed,
+      // send a CancelSwarming. Our parent needs to deal with stopping the whole actor tree later.
+      //
+      if( childrenHaveNotCompleted( childReport.completedType, regionalProgress))
+        sendToChildren( CancelSwarming, originator)
     }
 
     // Report the position our child gave us. evaluatedPosition specifies whether it is our best or not.
     reportingStrategy.reportForRegion( childReport, childIndex, evaluatedPosition, regionalProgress, terminateCriteriaStatus)
 
-    // If the newly evaluated position is best, tell our children (except for the originator who sent the position)
+    // If the newly evaluated position is best, tell our children (except for the originator child who sent the position)
     if( terminateCriteriaStatus.isNotMet && evaluatedPosition.isBest)
       tellChildren( evaluatedPosition, childReport.iteration, regionalProgress, originator)
   }
 
+  protected def childrenHaveNotCompleted( completedType: CompletedType, regionalProgress: Progress) =
+    ! (completedType == SwarmingCompleted && regionalProgress.completed)
 
   /**
    * A child has terminated.
