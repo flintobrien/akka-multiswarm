@@ -35,7 +35,7 @@ A swarm does not talk to its siblings directly. It can only send reports to its 
 
 ![Swarm Intelligence](https://github.com/flintobrien/akka-multiswarm/raw/master/swarmintelligence.png)
 
-A **SwarmActor** recieves messages and hands work off to a **SwarmIntelligence**. A *SwarmIntelligence* encompasses multiple aspects of the swarms behavior. Each aspect is documented below. In general, a *SwarmIntelligence* is composed with a particular implementation of each aspect to get the desired overall social behavior.
+A **SwarmActor** recieves messages and hands work off to a **SwarmIntelligence**. A *SwarmIntelligence* encompasses multiple aspects of the swarms behavior. Create a *SwarmIntelligence* with an implementation of each aspect to get the desired overall social behavior.
 
 #### Id
 Refers to the *Id* from psychoanalysis. It contains innate information and processes used by the other parts of a SwarmIntelligence. Of these, *bestPosition* and actor *context* are most prominent.
