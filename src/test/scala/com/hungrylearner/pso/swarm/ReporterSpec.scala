@@ -116,7 +116,7 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
       result must beNull
 
       underTest.reportSwarmAroundCompleted( childIndex, evaluatedPosition, iteration, progress)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow))
+      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
 
       underTest.reportSwarmingCompleted( childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow)
       result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow))

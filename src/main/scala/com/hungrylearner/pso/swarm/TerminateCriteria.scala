@@ -66,14 +66,14 @@ trait RegionalTerminateCriteria[F,P] extends TerminateCriteria[F,P] {
   }
 }
 
-trait RegionalTerminateWhenOneChildTerminates[F,P] extends RegionalTerminateCriteria[F,P] {
+trait RegionalTerminateOnOneSwarmingCompleted[F,P] extends RegionalTerminateCriteria[F,P] {
   this: RegionalId[F,P] =>
 
   override protected def terminateCriteriaTest( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean =
     childReport.completedType == CompletedType.SwarmingCompleted
 }
 
-trait RegionalTerminateWhenAllChildrenTerminate[F,P] extends RegionalTerminateCriteria[F,P] {
+trait RegionalTerminateOnAllSwarmingCompleted[F,P] extends RegionalTerminateCriteria[F,P] {
   this: RegionalId[F,P] =>
 
   override protected def terminateCriteriaTest( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean =

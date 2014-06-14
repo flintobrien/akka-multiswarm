@@ -53,7 +53,7 @@ class RegionalSupervisorSpec extends Specification with Mockito {
                                           override val childIndex: Int,
                                           override val context: ActorContext,
                                           override val reportingStrategy: RegionalReportingStrategy[F,P] )
-    extends RegionalSupervisor[F, P] with RegionalId[F,P] with RegionalTerminateWhenAllChildrenTerminate[F,P]
+    extends RegionalSupervisor[F, P] with RegionalId[F,P] with RegionalTerminateOnAllSwarmingCompleted[F,P]
   {
 
     override protected var bestPosition: Position[F, P] = _
@@ -150,7 +150,7 @@ class RegionalSupervisorSpec extends Specification with Mockito {
       underTest.onProgressReport( pr, originator.ref)
 
       val epTrue = EvaluatedPosition( position, isBest=true)
-      parent.expectMsg( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epTrue, iteration, ProgressOneOfOne, TerminateCriteriaMetNow))
+      parent.expectMsg( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, epTrue, iteration, ProgressOneOfOne, TerminateCriteriaNotMet))
       there was one(underTest).proxy_tellChildren(epTrue, iteration, ProgressOneOfOne, originator.ref)
 
 
