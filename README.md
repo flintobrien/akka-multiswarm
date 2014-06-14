@@ -53,7 +53,7 @@ A *ReportingStrategy* controls what gets reported to parent swarms and how often
 in a multi-swarm system.
 
 #### Terminate Criteria
-Decide when to terminate all swarming. This can be based on multiple criteria including max iterations. There is a standard trait for *LocalTerminateOnMaxIterations*. For RegionalSwarms, two standard traits are supplied: *RegionalTerminateWhenOneChildTerminates* and *RegionalTerminateWhenAllChildrenTerminate*.
+Decide when to terminate all swarming. This can be based on multiple criteria including max iterations. There is a standard trait for *LocalTerminateOnMaxIterations*. For RegionalSwarms, two standard traits are supplied: *RegionalTerminateOnOneSwarmingCompleted* and *RegionalTerminateOnAllSwarmingCompleted*.
 
 ### Commands
 
