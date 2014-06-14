@@ -1,8 +1,11 @@
 package com.hungrylearner.pso.swarm
 
 import com.hungrylearner.pso.swarm.Report.{Progress, ProgressReport}
+import TerminateCriteriaStatus._
 
 trait TerminateCriteria[F,P] {
+  protected var tcStatus = TerminateCriteriaNotMet
+  def terminateCriteriaStatus = tcStatus
 }
 
 /**
@@ -13,13 +16,27 @@ trait TerminateCriteria[F,P] {
  */
 trait LocalTerminateCriteria[F,P] extends TerminateCriteria[F,P] {
   this: LocalId[F,P] =>
-  def terminateCriteriaMet( iteration: Int): Boolean
+
+  protected def terminateCriteriaTest( iteration: Int): Boolean
+
+  def terminateCriteriaMet( iteration: Int): TerminateCriteriaStatus = {
+    tcStatus match {
+      case TerminateCriteriaNotMet =>
+        if( terminateCriteriaTest( iteration))
+          tcStatus = TerminateCriteriaMetNow
+      case TerminateCriteriaMetNow =>
+        tcStatus = TerminateCriteriaMetPreviously
+      case TerminateCriteriaMetPreviously =>
+    }
+    tcStatus
+  }
 }
 
 trait LocalTerminateOnMaxIterations[F,P] extends LocalTerminateCriteria[F,P] {
   this: LocalId[F,P] =>
 
-  override def terminateCriteriaMet( iteration: Int): Boolean = iteration >= config.context.iterations
+  override protected def terminateCriteriaTest( iteration: Int): Boolean =
+    iteration >= config.context.iterations
 }
 
 
@@ -33,20 +50,33 @@ trait LocalTerminateOnMaxIterations[F,P] extends LocalTerminateCriteria[F,P] {
  */
 trait RegionalTerminateCriteria[F,P] extends TerminateCriteria[F,P] {
   this: RegionalId[F,P] =>
-  def terminateCriteriaMet( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean
+
+  protected def terminateCriteriaTest( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean
+
+  def terminateCriteriaMet( childReport: ProgressReport[F,P], regionalProgress: Progress): TerminateCriteriaStatus = {
+    tcStatus match {
+      case TerminateCriteriaNotMet =>
+        if( terminateCriteriaTest( childReport, regionalProgress))
+          tcStatus = TerminateCriteriaMetNow
+      case TerminateCriteriaMetNow =>
+        tcStatus = TerminateCriteriaMetPreviously
+      case TerminateCriteriaMetPreviously =>
+    }
+    tcStatus
+  }
 }
 
 trait RegionalTerminateWhenOneChildTerminates[F,P] extends RegionalTerminateCriteria[F,P] {
   this: RegionalId[F,P] =>
 
-  override def terminateCriteriaMet( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean =
+  override protected def terminateCriteriaTest( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean =
     childReport.completedType == CompletedType.SwarmingCompleted
 }
 
 trait RegionalTerminateWhenAllChildrenTerminate[F,P] extends RegionalTerminateCriteria[F,P] {
   this: RegionalId[F,P] =>
 
-  override def terminateCriteriaMet( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean =
+  override protected def terminateCriteriaTest( childReport: ProgressReport[F,P], regionalProgress: Progress): Boolean =
     childReport.completedType == CompletedType.SwarmingCompleted && regionalProgress.completed
 }
 

@@ -4,6 +4,7 @@ import com.hungrylearner.pso.particle.EvaluatedPosition
 
 object Report {
   import CompletedType._
+  import TerminateCriteriaStatus._
 
   case class ProgressFraction( completedCount: Int, outOf: Int)
   case class Progress( children: ProgressFraction, descendantSwarms: ProgressFraction, completed: Boolean)
@@ -27,7 +28,8 @@ object Report {
                                   childIndex: Int,
                                   evaluatedPosition: EvaluatedPosition[F,P],
                                   iteration: Int,
-                                  progress: Progress
+                                  progress: Progress,
+                                  terminateCriteriaStatus: TerminateCriteriaStatus
                                   ) extends Message
 
 }

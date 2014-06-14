@@ -14,6 +14,8 @@ import com.hungrylearner.pso.particle.EvaluatedPosition
 class ReporterSpec extends Specification with NoTimeConversions with Mockito {
   sequential // forces all tests to be run sequentially
 
+  import TerminateCriteriaStatus._
+
   "A TestKit" should {
     /* for every case where you would normally use "in", use
        "in new AkkaTestkitSpecs2Support" to create a new 'context'. */
@@ -65,13 +67,13 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
         parent.expectMsgType[ProgressReport[Int,Int]] must be( report)
 
         underTest.reportOneIterationCompleted(childIndex, evaluatedPosition, iteration, progress)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
 
         underTest.reportSwarmAroundCompleted(childIndex, evaluatedPosition, iteration, progress)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
 
-        underTest.reportSwarmingCompleted(childIndex, evaluatedPosition, iteration, progress)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress))
+        underTest.reportSwarmingCompleted(childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow)
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow))
       }
 
     }
@@ -93,13 +95,13 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
       val underTest = new UnderTest
 
       underTest.reportOneIterationCompleted( childIndex, evaluatedPosition, iteration, progress)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress))
+      result must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
 
       underTest.reportSwarmAroundCompleted( childIndex, evaluatedPosition, iteration, progress)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress))
+      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
 
-      underTest.reportSwarmingCompleted( childIndex, evaluatedPosition, iteration, progress)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress))
+      underTest.reportSwarmingCompleted( childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow))
     }
 
     "  PeriodicLocalReporting should report all except SwarmOneIterationCompleted" in {
@@ -114,10 +116,10 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
       result must beNull
 
       underTest.reportSwarmAroundCompleted( childIndex, evaluatedPosition, iteration, progress)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress))
+      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow))
 
-      underTest.reportSwarmingCompleted( childIndex, evaluatedPosition, iteration, progress)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress))
+      underTest.reportSwarmingCompleted( childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow))
     }
 
     "  SwarmingCompletedLocalReporting should only report SwarmingCompleted" in {
@@ -134,8 +136,8 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
       underTest.reportSwarmAroundCompleted( childIndex, evaluatedPosition, iteration, progress)
       result must beNull
 
-      underTest.reportSwarmingCompleted( childIndex, evaluatedPosition, iteration, progress)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress))
+      underTest.reportSwarmingCompleted( childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow))
     }
 
   }
@@ -149,9 +151,9 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
     val evaluatedPosition2 = mock[EvaluatedPosition[Int,Int]]
     val progress = mock[Progress]
     val progress2 = mock[Progress]
-    val prSwarmOneIterationCompleted = ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress)
-    val prSwarmAroundCompleted = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress)
-    val prSwarmingCompleted = ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress)
+    val prSwarmOneIterationCompleted = ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet)
+    val prSwarmAroundCompleted = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet)
+    val prSwarmingCompleted = ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow)
 
     "  ContinuousRegionalReporting should report all events" in {
 
@@ -162,14 +164,14 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
       val underTest = new UnderTest
 
 
-      underTest.reportForRegion( prSwarmOneIterationCompleted, childIndex2, evaluatedPosition2, progress2)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex2, evaluatedPosition2, iteration, progress2))
+      underTest.reportForRegion( prSwarmOneIterationCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaNotMet)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex2, evaluatedPosition2, iteration, progress2, TerminateCriteriaNotMet))
 
-      underTest.reportForRegion( prSwarmAroundCompleted, childIndex2, evaluatedPosition2, progress2)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex2, evaluatedPosition2, iteration, progress2))
+      underTest.reportForRegion( prSwarmAroundCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaNotMet)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex2, evaluatedPosition2, iteration, progress2, TerminateCriteriaNotMet))
 
-      underTest.reportForRegion( prSwarmingCompleted, childIndex2, evaluatedPosition2, progress2)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex2, evaluatedPosition2, iteration, progress2))
+      underTest.reportForRegion( prSwarmingCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaMetNow)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex2, evaluatedPosition2, iteration, progress2, TerminateCriteriaMetNow))
     }
 
     "  PeriodicRegionalReporting should report all events" in {
@@ -181,14 +183,14 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
       val underTest = new UnderTest
 
 
-      underTest.reportForRegion( prSwarmOneIterationCompleted, childIndex2, evaluatedPosition2, progress2)
+      underTest.reportForRegion( prSwarmOneIterationCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaNotMet)
       result must beNull
 
-      underTest.reportForRegion( prSwarmAroundCompleted, childIndex2, evaluatedPosition2, progress2)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex2, evaluatedPosition2, iteration, progress2))
+      underTest.reportForRegion( prSwarmAroundCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaNotMet)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex2, evaluatedPosition2, iteration, progress2, TerminateCriteriaNotMet))
 
-      underTest.reportForRegion( prSwarmingCompleted, childIndex2, evaluatedPosition2, progress2)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex2, evaluatedPosition2, iteration, progress2))
+      underTest.reportForRegion( prSwarmingCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaMetNow)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex2, evaluatedPosition2, iteration, progress2, TerminateCriteriaMetNow))
     }
 
     "  SwarmingCompletedRegionalReporting should report all events" in {
@@ -200,14 +202,14 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
       val underTest = new UnderTest
 
 
-      underTest.reportForRegion( prSwarmOneIterationCompleted, childIndex2, evaluatedPosition2, progress2)
+      underTest.reportForRegion( prSwarmOneIterationCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaNotMet)
       result must beNull
 
-      underTest.reportForRegion( prSwarmAroundCompleted, childIndex2, evaluatedPosition2, progress2)
+      underTest.reportForRegion( prSwarmAroundCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaMetNow)
       result must beNull
 
-      underTest.reportForRegion( prSwarmingCompleted, childIndex2, evaluatedPosition2, progress2)
-      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex2, evaluatedPosition2, iteration, progress2))
+      underTest.reportForRegion( prSwarmingCompleted, childIndex2, evaluatedPosition2, progress2, TerminateCriteriaMetNow)
+      result must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex2, evaluatedPosition2, iteration, progress2, TerminateCriteriaMetNow))
     }
 
 

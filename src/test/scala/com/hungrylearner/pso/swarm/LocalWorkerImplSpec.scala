@@ -39,6 +39,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
   import LocalWorkerImplSpec._
   import CompletedType._
   import Report._
+  import TerminateCriteriaStatus._
 
   class MockReportingStrategy[F,P]( override val parent: ActorRef)
     extends ParentReporter[F,P]
@@ -79,7 +80,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         underTest.onCommand( SwarmOneIteration)
 
         val evaluatedPosition = EvaluatedPosition( position, isBest=true)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne, TerminateCriteriaNotMet))
       }
     }
 
@@ -99,7 +100,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         underTest.onCommand( SwarmOneIteration)
 
         val evaluatedPosition = EvaluatedPosition( position, isBest=true)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne, TerminateCriteriaMetNow))
       }
     }
 
@@ -120,7 +121,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         underTest.onCommand( SwarmAround( 1))
 
         val evaluatedPosition = EvaluatedPosition( position, isBest=true)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne, TerminateCriteriaNotMet))
       }
     }
 
@@ -140,7 +141,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         underTest.onCommand( SwarmAround( 1))
 
         val evaluatedPosition = EvaluatedPosition( position, isBest=true)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne, TerminateCriteriaMetNow))
       }
     }
 
@@ -164,8 +165,8 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         testActor ! SwarmAround( 2)
 
         val evaluatedPosition = EvaluatedPosition( position, isBest=true)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne))
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration=2, ProgressOneOfOne))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne, TerminateCriteriaNotMet))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration=2, ProgressOneOfOne, TerminateCriteriaNotMet))
       }
     }
 
@@ -189,8 +190,8 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         testActor ! SwarmAround( 2)
 
         val evaluatedPosition = EvaluatedPosition( position, isBest=true)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne))
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration=2, ProgressOneOfOne))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration=1, ProgressOneOfOne, TerminateCriteriaNotMet))
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo( ProgressReport[Int,Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration=2, ProgressOneOfOne, TerminateCriteriaMetNow))
       }
     }
 

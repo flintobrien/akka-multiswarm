@@ -41,7 +41,9 @@ object RegionalSwarmActor {
   def makeChildren[F,P]( config: RegionalSwarmConfig[F,P], context: ActorContext): List[ActorRef] = {
     List.tabulate[ActorRef]( config.childCount) { childIndex =>
       val props = Props( classOf[ChildSwarmActorProducer[F,P]], config, childIndex, context)
-      context.actorOf( props, name=config.childName+childIndex)
+      val child = context.actorOf( props, name=config.childName+childIndex)
+      context.watch( child) // Watch for Terminated(child) message.
+      child
     }
   }
 
@@ -78,6 +80,7 @@ class RegionalSwarmActor[F,P]( swarmIntelligenceFactory: ( Int, ActorContext) =>
 
     // From children
     case progressReport:  ProgressReport[F,P] => intelligence.onProgressReport( progressReport, sender)
+    case Terminated( child) => intelligence.onTerminated( child)
 
     // Huh?
     case unknownMessage: AnyRef => log.error( "AbstractRegionalSwarm.receive: Unknown message {}", unknownMessage)

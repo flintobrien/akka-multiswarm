@@ -35,6 +35,12 @@ trait Supervisor[F,P] extends Worker[F,P] {
   def onProgressReport( progressReport: ProgressReport[F,P], originator: ActorRef): Unit
 
   /**
+   * A child has terminated.
+   * @param child The child that terminated.
+   */
+  def onTerminated( child: ActorRef)
+
+  /**
    * Decide if and when to influence children by sending them knowledge of a (potentially)
    * better position. The position sent is usually the region's current bestPosition.
    *
