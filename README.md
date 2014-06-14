@@ -68,4 +68,4 @@ Swarm around for a number of iterations, then wait for another command. When the
 If the simulation should run for 1000 iterations, you can send 1000 SwarmOneIteration, 100 SwarmAround(10) or one SwarmAround(1000) message. The difference is how often a *SwarmAroundCompleted* report is generated and how often you want social interactions between swarms. 
 
 ##### CancelSwarming
-Not implemented yet, but seems useful.
+Cancel swarming before TerminateCriteria is met.
