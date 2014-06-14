@@ -72,13 +72,9 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   protected val descendantProgressCounters = new ProgressCounters[F,P]
 
   /**
-  * We received a ProgressReport from a child.
-  *
-  * - If it has a better position, update our bestPosition
-  * - Send an updated report to the RegionalReporter
-  * - Decide if/when to tell our children.
-  *
-  */
+   * We received a ProgressReport from a child. Update our best position, report to our parent, and update our
+   * children.
+   */
   override def onProgressReport( childReport: ProgressReport[F,P], originator: ActorRef): Unit = {
 
     val regionalProgress = calculateRegionalProgress( childReport)
@@ -98,8 +94,11 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
     // Report the position our child gave us. evaluatedPosition specifies whether it is our best or not.
     reportingStrategy.reportForRegion( childReport, childIndex, evaluatedPosition, regionalProgress, terminateCriteriaStatus)
 
-    // If the newly evaluated position is best, tell our children (except for the originator child who sent the position)
-    if( terminateCriteriaStatus.isNotMet && evaluatedPosition.isBest)
+    // If terminate criteria is not met, tell the children (except for the originator child who sent the position).
+    // The implementer of tellChildren decides when and whether the children should be told. This decision can be based on
+    // evaluatedPosition.isBest or other criteria.
+    //
+    if( terminateCriteriaStatus.isNotMet)
       tellChildren( evaluatedPosition, childReport.iteration, regionalProgress, originator)
   }
 

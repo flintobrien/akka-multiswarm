@@ -32,7 +32,7 @@ trait Supervisor[F,P] extends Worker[F,P] {
    * to wait for all children to catch up and complete the specified iteration before doing
    * anything.
    */
-  def onProgressReport( progressReport: ProgressReport[F,P], originator: ActorRef): Unit
+  def onProgressReport( childReport: ProgressReport[F,P], originator: ActorRef): Unit
 
   /**
    * A child has terminated.
