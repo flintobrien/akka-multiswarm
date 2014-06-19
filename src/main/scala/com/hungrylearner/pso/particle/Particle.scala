@@ -5,7 +5,7 @@ trait Particle[F,P] extends ParticleSpace[F,P] with Kinematic[F,P] {
   /**
    * Use the one best particle from the beginning of the step.
    *
-   * Pass in the bestParticle fitness too. No need to calculat it for every particle.
+   * Pass in the bestParticle fitness too. No need to calculate it for every particle.
    *
    * Need to return the fitness for each particle. From that we keep track of the
    * best particle at the end of the step

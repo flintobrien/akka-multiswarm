@@ -74,6 +74,7 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
       state = SWARMING_ONE_ITERATION
     iteration += 1
     particles.foreach{ p =>
+      // TODO: This may find several positions that are better than bestForIteration. Why not pass in bestPosition to find the very best?
       bestPosition = p.update( iteration, bestForIteration)
     }
 
