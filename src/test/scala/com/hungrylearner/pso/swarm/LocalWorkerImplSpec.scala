@@ -20,7 +20,7 @@ object LocalWorkerImplSpec extends Mockito {
   val particle = mock[Particle[Int,Int]]
   particle.fittest( any[Particle[Int,Int]]) returns particle
   particle.position returns mutablePosition
-  particle.update( anyInt, any[Position[Int,Int]]) returns position
+  particle.update( anyInt, any[Position[Int,Int]]) returns Some( position)
 
   def makeParticle( swarmIndex: Int, particleIndex: Int, particleCount: Int) = particle
 

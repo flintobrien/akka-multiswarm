@@ -26,7 +26,7 @@ trait ParticleSpaceDVD extends ParticleSpace[Double,DenseVector[Double]] {
   val psc: ParticleSpaceContext
   protected var _position: MutablePositionDVD = psc.initialPosition( dimension, index)
   // _personalBest needs to be a copy!  _position is mutable and will be updated
-  protected var _personalBest: MutablePositionDVD = _position.copy
+  protected var _personalBest: PositionDVD = _position.toPosition.asInstanceOf[PositionDVD]
 
   override def position = _position
   override def personalBest = _personalBest
@@ -39,12 +39,14 @@ trait ParticleSpaceDVD extends ParticleSpace[Double,DenseVector[Double]] {
    * If new position is personal best, update personal best.
    * @return personal best position
    */
-  override def updatePersonalBest: MutablePositionDVD = {
+  override def updatePersonalBest: Option[PositionDVD] = {
     // If new fitness is better than recorded personal best
     if( position.fitness < personalBest.fitness) {
-      _personalBest = position.copy
+      _personalBest = position.toPosition.asInstanceOf[PositionDVD]
+      Some(_personalBest)
+    } else {
+      None
     }
-    _personalBest
   }
 
 

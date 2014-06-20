@@ -7,7 +7,7 @@ import akka.event.Logging
  * Created by flint on 5/4/14.
  */
 trait Kinematic[F,P] {
-  this: ParticleSpace[F,P] =>
+//  this: ParticleSpace[F,P] =>
 
   type VelocityBounds
   type InertiaWeight

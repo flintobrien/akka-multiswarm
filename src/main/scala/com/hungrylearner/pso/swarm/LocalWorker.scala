@@ -75,7 +75,13 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
     iteration += 1
     particles.foreach{ p =>
       // TODO: This may find several positions that are better than bestForIteration. Why not pass in bestPosition to find the very best?
-      bestPosition = p.update( iteration, bestForIteration)
+      // TODO: Can we pick a position out of the pareto frontier to pass to update or just pass the whole Pareto frontier?
+      p.update( iteration, bestForIteration) match {
+        case Some(newPersonalBestPosition) =>
+          if( newPersonalBestPosition < bestForIteration)
+            bestPosition = newPersonalBestPosition
+        case None =>
+      }
     }
 
     Logger.debug( "LocalSwarm.oneIteration end iteration={} bestParticle: {}", iteration, bestPosition.value)

@@ -1,13 +1,14 @@
 package com.hungrylearner.pso.particle
 
-
-trait ParticleSpace[F,P] {
-
+/**
+ * Created by flint on 6/18/14.
+ */
+trait ParetoParticleSpace[F,P] {
   type PositionBounds  // aka. Search Space
   type History
 
   def position: MutablePosition[F,P]
-  def personalBest: Position[F,P]
+  def personalBest: ParetoFront[F,P]
   def positionBounds: PositionBounds
   def history: History
 
@@ -20,7 +21,3 @@ trait ParticleSpace[F,P] {
   def updatePersonalBest: Option[Position[F,P]]
 
 }
-
-
-
-

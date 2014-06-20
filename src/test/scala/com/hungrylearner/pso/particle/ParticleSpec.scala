@@ -65,8 +65,7 @@ class ParticleSpec  extends Specification with BeforeAfter with Mockito  {
 
   "Particle" should {
 
-    "return other as the fittest particle" in {
-//      println( "test 1 ------------------------------")
+    "  return other as the fittest particle" in {
       val particle = mock[ParticleUnderTest]
       val particleBest = mock[ParticleUnderTest]
       when( particle.fittest( any[PL])).thenCallRealMethod
@@ -77,8 +76,7 @@ class ParticleSpec  extends Specification with BeforeAfter with Mockito  {
       result must be( particleBest)
     }
 
-    "return this as the fittest particle" in {
-//      println( "test 1 ------------------------------")
+    "  return this as the fittest particle" in {
       val particle = mock[ParticleUnderTest]
       val particleBest = mock[ParticleUnderTest]
       when( particle.fittest( any[PL])).thenCallRealMethod
@@ -89,8 +87,7 @@ class ParticleSpec  extends Specification with BeforeAfter with Mockito  {
       result must be( particle)
     }
 
-    "call multi[ple update functions on ParticleLike.update and return the fittest particle" in {
-//      println( "test 2 ------------------------------")
+    "  call multiple functions on Particle.update" in {
       val particle = mock[ParticleUnderTest]
       val particleBest = mock[ParticleUnderTest]
       when( particle.update( anyInt, any[P])).thenCallRealMethod
@@ -99,8 +96,7 @@ class ParticleSpec  extends Specification with BeforeAfter with Mockito  {
       particle.position returns positionWith2
       particle.velocity returns DenseVector[Double](1.0)
       particleBest.position returns positionWith1
-      val fittestPosition = particle.update( 2, positionWith1)
-      fittestPosition must be(positionWith1)
+      particle.update( 2, positionWith1)
 
       there was one( particle).update( 2, positionWith1) andThen
         one(particle).updateVelocity( 2, positionWith1) andThen
