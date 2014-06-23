@@ -134,7 +134,7 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
   }
 
   def onReport( report: ProgressReport[Double,DenseVector[Double]]) = {
-    log.info(  s"++++++++++++++++++++++++++++++++ ProgressReport ${report.iteration} ${report.evaluatedPosition.position.value(0)}")
+    log.info(  s"++++++++++++++++++++++++++++++++ ProgressReport ${report.iteration} ${report.newBestPositions(0).position.value(0)}")
     if( report.completedType != SwarmingCompleted)
       swarm ! swarmAround
     else {

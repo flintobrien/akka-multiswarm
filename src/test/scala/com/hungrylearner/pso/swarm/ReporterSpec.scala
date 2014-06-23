@@ -9,7 +9,7 @@ import org.specs2.time.NoTimeConversions
 import CompletedType._
 import com.hungrylearner.pso.swarm.Report.{Progress,ProgressFraction,ProgressReport}
 import test.AkkaTestkitSpecs2Support
-import com.hungrylearner.pso.particle.EvaluatedPosition
+import com.hungrylearner.pso.particle.PositionIteration
 
 class ReporterSpec extends Specification with NoTimeConversions with Mockito {
   sequential // forces all tests to be run sequentially
@@ -51,7 +51,7 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
 
     val childIndex = 0
     val iteration = 1
-    val evaluatedPosition = mock[EvaluatedPosition[Int, Int]]
+    val newBestPositions = mock[ Seq[PositionIteration[Int, Int]]]
     val progress = mock[Progress]
 
     "  Stack with ContinuousLocalReporting to report all events" in new AkkaTestkitSpecs2Support {
@@ -66,14 +66,14 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
         underTest.report( report)
         parent.expectMsgType[ProgressReport[Int,Int]] must be( report)
 
-        underTest.reportOneIterationCompleted(childIndex, evaluatedPosition, iteration, progress)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
+        underTest.reportOneIterationCompleted(childIndex, newBestPositions, iteration, progress)
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmOneIterationCompleted, childIndex, newBestPositions, iteration, progress, TerminateCriteriaNotMet))
 
-        underTest.reportSwarmAroundCompleted(childIndex, evaluatedPosition, iteration, progress)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
+        underTest.reportSwarmAroundCompleted(childIndex, newBestPositions, iteration, progress)
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmAroundCompleted, childIndex, newBestPositions, iteration, progress, TerminateCriteriaNotMet))
 
-        underTest.reportSwarmingCompleted(childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow)
-        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaMetNow))
+        underTest.reportSwarmingCompleted(childIndex, newBestPositions, iteration, progress, TerminateCriteriaMetNow)
+        parent.expectMsgType[ProgressReport[Int,Int]] must beEqualTo(ProgressReport[Int, Int](SwarmingCompleted, childIndex, newBestPositions, iteration, progress, TerminateCriteriaMetNow))
       }
 
     }
@@ -83,7 +83,7 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
 
     val childIndex = 0
     val iteration = 1
-    val evaluatedPosition = mock[EvaluatedPosition[Int,Int]]
+    val evaluatedPosition = mock[ Seq[PositionIteration[Int,Int]]]
     val progress = mock[Progress]
 
     "  ContinuousLocalReporting should report all events" in {
@@ -147,8 +147,8 @@ class ReporterSpec extends Specification with NoTimeConversions with Mockito {
     val childIndex = 0
     val childIndex2 = 1
     val iteration = 1
-    val evaluatedPosition = mock[EvaluatedPosition[Int,Int]]
-    val evaluatedPosition2 = mock[EvaluatedPosition[Int,Int]]
+    val evaluatedPosition = mock[ Seq[PositionIteration[Int,Int]]]
+    val evaluatedPosition2 = mock[ Seq[PositionIteration[Int,Int]]]
     val progress = mock[Progress]
     val progress2 = mock[Progress]
     val prSwarmOneIterationCompleted = ProgressReport[Int,Int](SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet)

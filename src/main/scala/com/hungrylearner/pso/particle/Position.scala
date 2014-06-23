@@ -11,7 +11,7 @@ trait Position[F,P] extends Ordered[Position[F,P]] {
   def fitness: F
 }
 
-case class EvaluatedPosition[F,P]( position: Position[F,P], isBest: Boolean)
+case class PositionIteration[F,P]( position: Position[F,P], iteration: Int)
 
 /**
  * Mutable Position for faster position updates.

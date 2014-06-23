@@ -1,6 +1,6 @@
 package com.hungrylearner.pso.swarm
 
-import com.hungrylearner.pso.particle.EvaluatedPosition
+import com.hungrylearner.pso.particle.PositionIteration
 
 object Report {
   import CompletedType._
@@ -17,7 +17,7 @@ object Report {
    *
    * @param completedType Task of type ONE_ITERATION, SWARM_AROUND, or SWARMING has completed.
    * @param childIndex Index if the child that sent this report
-   * @param evaluatedPosition A position as evaluated be the report sender.
+   * @param newBestPositions New best positions that have not been previously reported.
    * @param iteration The iteration when the report was generated. This is an absolute number across all
    *                  reports.
    * @param progress Progress statistics
@@ -26,7 +26,7 @@ object Report {
    */
   case class ProgressReport[F,P]( completedType: CompletedType,
                                   childIndex: Int,
-                                  evaluatedPosition: EvaluatedPosition[F,P],
+                                  newBestPositions: Seq[PositionIteration[F,P]],
                                   iteration: Int,
                                   progress: Progress,
                                   terminateCriteriaStatus: TerminateCriteriaStatus

@@ -1,6 +1,6 @@
 package com.hungrylearner.pso
 
-import com.hungrylearner.pso.particle.EvaluatedPosition
+import com.hungrylearner.pso.particle.PositionIteration
 
 /**
  * Created by flint on 5/23/14.
@@ -60,10 +60,10 @@ package object swarm {
    * Tell a child swarm about an influential position. This is typically a local or global
    * best, but depends on the social strategy.
    *
-   * @param evaluatedPosition
+   * @param newBestPositions
    * @param iteration The current iteration when message was sent.
    */
-  case class InfluentialPosition[F,P]( evaluatedPosition: EvaluatedPosition[F,P], iteration: Int) extends Influence
+  case class InfluentialPosition[F,P]( newBestPositions: Seq[PositionIteration[F,P]], iteration: Int) extends Influence
 
 
   /**

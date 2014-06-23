@@ -1,7 +1,7 @@
 package com.hungrylearner.pso.swarm
 
 import akka.actor.ActorRef
-import com.hungrylearner.pso.particle.EvaluatedPosition
+import com.hungrylearner.pso.particle.PositionIteration
 import com.hungrylearner.pso.swarm.Report._
 
 
@@ -78,8 +78,8 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   override def onProgressReport( childReport: ProgressReport[F,P], originator: ActorRef): Unit = {
 
     val regionalProgress = calculateRegionalProgress( childReport)
-    val evaluatedPosition = evaluatePosition( childReport)
-    updateBestPosition( evaluatedPosition)
+    val betterPositions = getBetterPositions( childReport)
+    updateBestPositions( betterPositions)
 
     val terminateCriteriaStatus = terminateCriteriaMet( childReport, regionalProgress)
     if( terminateCriteriaStatus == TerminateCriteriaMetNow) {
@@ -92,14 +92,14 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
     }
 
     // Report the position our child gave us. evaluatedPosition specifies whether it is our best or not.
-    reportingStrategy.reportForRegion( childReport, childIndex, evaluatedPosition, regionalProgress, terminateCriteriaStatus)
+    reportingStrategy.reportForRegion( childReport, childIndex, betterPositions, regionalProgress, terminateCriteriaStatus)
 
     // If terminate criteria is not met, tell the children (except for the originator child who sent the position).
     // The implementer of tellChildren decides when and whether the children should be told. This decision can be based on
     // evaluatedPosition.isBest or other criteria.
     //
     if( terminateCriteriaStatus.isNotMet)
-      tellChildren( evaluatedPosition, childReport.iteration, regionalProgress, originator)
+      tellChildren( betterPositions, childReport.iteration, regionalProgress, originator)
   }
 
   protected def childrenHaveNotCompleted( completedType: CompletedType, regionalProgress: Progress) =
@@ -114,9 +114,9 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
     Logger.info( s"RegionalSwarmActor Terminated( child='${child.path.name}')")
   }
 
-  def updateBestPosition( evaluatedPosition: EvaluatedPosition[F,P]) =
-    if( evaluatedPosition.isBest || bestPosition == null)
-      bestPosition = evaluatedPosition.position
+  def updateBestPositions( betterPositions: Seq[PositionIteration[F,P]]) =
+    if( ! betterPositions.isEmpty)
+      bestPosition = betterPositions.head.position
 
 
 
@@ -126,9 +126,17 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   * @param progressReport Progress report from child
   * @return Our evaluation of the reported position compared to our bestPosition
   */
-  def evaluatePosition( progressReport: ProgressReport[F,P]): EvaluatedPosition[F,P] = {
-    val isRegionalBest = isBetterPosition( progressReport.evaluatedPosition)
-    EvaluatedPosition( progressReport.evaluatedPosition.position, isRegionalBest)
+  def getBetterPositions( progressReport: ProgressReport[F,P]): Seq[PositionIteration[F,P]] = {
+    if( progressReport.newBestPositions.isEmpty)
+      return progressReport.newBestPositions
+    else {
+      if( isBetterPosition( progressReport.newBestPositions.head))
+        return progressReport.newBestPositions
+      else
+        return Seq()
+    }
+//    val isRegionalBest = isBetterPosition( progressReport.newBestPositions)
+//    PositionIteration( progressReport.newBestPositions.position, isRegionalBest)
   }
 
   protected def calculateRegionalProgress( progressReport: ProgressReport[F,P]): Progress = {
@@ -150,7 +158,7 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   }
 
 
-  protected def isBetterPosition( evaluatedPosition: EvaluatedPosition[F,P]): Boolean = {
+  protected def isBetterPosition( evaluatedPosition: PositionIteration[F,P]): Boolean = {
      bestPosition == null || evaluatedPosition.position < bestPosition
   }
 

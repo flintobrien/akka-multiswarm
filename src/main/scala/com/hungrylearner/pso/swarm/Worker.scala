@@ -2,7 +2,7 @@ package com.hungrylearner.pso.swarm
 
 import com.hungrylearner.pso.swarm.Report.{Progress, ProgressReport}
 import akka.actor.ActorRef
-import com.hungrylearner.pso.particle.EvaluatedPosition
+import com.hungrylearner.pso.particle.PositionIteration
 
 /**
  * A Worker does the actual work during swarming. Workers work and don't supervise other
@@ -51,6 +51,6 @@ trait Supervisor[F,P] extends Worker[F,P] {
    *                 wait on influencing children until all children have reported their progress
    *                 has completed for the given command and iteration.
    */
-  protected def tellChildren( evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, originator: ActorRef)
+  protected def tellChildren( evaluatedPosition: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress, originator: ActorRef)
 
 }

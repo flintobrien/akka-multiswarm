@@ -1,6 +1,6 @@
 package com.hungrylearner.pso.swarm
 
-import com.hungrylearner.pso.particle.{Position, EvaluatedPosition}
+import com.hungrylearner.pso.particle.{Position, PositionIteration}
 import com.hungrylearner.pso.swarm.Report._
 import akka.actor.ActorRef
 
@@ -27,7 +27,7 @@ trait AsyncRegionalSupervisor[F,P] extends RegionalSupervisor[F,P] {
    * Tell children now or later. For example, we could wait until all children report
    * for the iteration, then send the bestPosition
    *
-   * @param evaluatedPosition  The position given us by the RegionalSupervisor.
+   * @param newBestPositions  The position given us by the RegionalSupervisor.
    * @param iteration The current iteration
    * @param progress  This swarm's current progress for the specified iteration
    * @param originator The child that originated the report which led to the evaluatedPosition.
@@ -35,10 +35,10 @@ trait AsyncRegionalSupervisor[F,P] extends RegionalSupervisor[F,P] {
    *                   This can be used when the Supervisor wants to send a new InfluentialPosition
    *                   to all children except the originator.
    */
-  override protected def tellChildren( evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, originator: ActorRef) = {
+  override protected def tellChildren( newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress, originator: ActorRef) = {
     // For now, if we get some information about a fitter position, we tell the children.
-    if( evaluatedPosition.isBest)
-      sendToChildren( InfluentialPosition[F,P]( evaluatedPosition, iteration), originator) // Don't send to originator.
+    if( ! newBestPositions.isEmpty)
+      sendToChildren( InfluentialPosition[F,P]( newBestPositions, iteration), originator) // Don't send to originator.
   }
 
 }

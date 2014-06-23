@@ -4,7 +4,7 @@ import akka.actor.ActorRef
 import CompletedType._
 import Report._
 import TerminateCriteriaStatus._
-import com.hungrylearner.pso.particle.EvaluatedPosition
+import com.hungrylearner.pso.particle.PositionIteration
 
 
 /**
@@ -22,9 +22,9 @@ trait ParentReporter[F,P] extends ReportingStrategy[F,P] {
  */
 trait ContinuousLocalReporting[F,P] extends LocalReportingStrategy[F,P] {
 
-  override def reportOneIterationCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress) = report( ProgressReport( SwarmOneIterationCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
-  override def reportSwarmAroundCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress) = report( ProgressReport( SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
-  override def reportSwarmingCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = report( ProgressReport( SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, terminateCriteriaStatus))
+  override def reportOneIterationCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress) = report( ProgressReport( SwarmOneIterationCompleted, childIndex, newBestPositions, iteration, progress, TerminateCriteriaNotMet))
+  override def reportSwarmAroundCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress) = report( ProgressReport( SwarmAroundCompleted, childIndex, newBestPositions, iteration, progress, TerminateCriteriaNotMet))
+  override def reportSwarmingCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = report( ProgressReport( SwarmingCompleted, childIndex, newBestPositions, iteration, progress, terminateCriteriaStatus))
 }
 
 /**
@@ -32,9 +32,9 @@ trait ContinuousLocalReporting[F,P] extends LocalReportingStrategy[F,P] {
  */
 trait PeriodicLocalReporting[F,P] extends LocalReportingStrategy[F,P] {
 
-  override def reportOneIterationCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress) = {}
-  override def reportSwarmAroundCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress) = report( ProgressReport[F,P]( SwarmAroundCompleted, childIndex, evaluatedPosition, iteration, progress, TerminateCriteriaNotMet))
-  override def reportSwarmingCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = report( ProgressReport[F,P]( SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, terminateCriteriaStatus))
+  override def reportOneIterationCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress) = {}
+  override def reportSwarmAroundCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress) = report( ProgressReport[F,P]( SwarmAroundCompleted, childIndex, newBestPositions, iteration, progress, TerminateCriteriaNotMet))
+  override def reportSwarmingCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = report( ProgressReport[F,P]( SwarmingCompleted, childIndex, newBestPositions, iteration, progress, terminateCriteriaStatus))
 }
 
 /**
@@ -42,9 +42,9 @@ trait PeriodicLocalReporting[F,P] extends LocalReportingStrategy[F,P] {
  */
 trait SwarmingCompletedLocalReporting[F,P] extends LocalReportingStrategy[F,P] {
 
-  override def reportOneIterationCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress) = {}
-  override def reportSwarmAroundCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress) = {}
-  override def reportSwarmingCompleted( childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], iteration: Int, progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = report( ProgressReport[F,P]( SwarmingCompleted, childIndex, evaluatedPosition, iteration, progress, terminateCriteriaStatus))
+  override def reportOneIterationCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress) = {}
+  override def reportSwarmAroundCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress) = {}
+  override def reportSwarmingCompleted( childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = report( ProgressReport[F,P]( SwarmingCompleted, childIndex, newBestPositions, iteration, progress, terminateCriteriaStatus))
 }
 
 
@@ -53,8 +53,8 @@ trait SwarmingCompletedLocalReporting[F,P] extends LocalReportingStrategy[F,P] {
  */
 trait ContinuousRegionalReporting[F,P] extends RegionalReportingStrategy[F,P] {
 
-  override def reportForRegion(progressReport: ProgressReport[F,P], childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = {
-    val newProgressReport = ProgressReport(progressReport.completedType, childIndex, evaluatedPosition, progressReport.iteration, progress, terminateCriteriaStatus)
+  override def reportForRegion(progressReport: ProgressReport[F,P], childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = {
+    val newProgressReport = ProgressReport(progressReport.completedType, childIndex, newBestPositions, progressReport.iteration, progress, terminateCriteriaStatus)
     report(newProgressReport)
   }
 }
@@ -64,9 +64,9 @@ trait ContinuousRegionalReporting[F,P] extends RegionalReportingStrategy[F,P] {
  */
 trait PeriodicRegionalReporting[F,P] extends RegionalReportingStrategy[F,P] {
 
-  override def reportForRegion(progressReport: ProgressReport[F,P], childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = {
+  override def reportForRegion(progressReport: ProgressReport[F,P], childIndex: Int, newBestPositions: Seq[PositionIteration[F,P]], progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = {
     if (progressReport.completedType != SwarmOneIterationCompleted) {
-      val newProgressReport = ProgressReport(progressReport.completedType, childIndex, evaluatedPosition, progressReport.iteration, progress, terminateCriteriaStatus)
+      val newProgressReport = ProgressReport(progressReport.completedType, childIndex, newBestPositions, progressReport.iteration, progress, terminateCriteriaStatus)
       report(newProgressReport)
     }
   }
@@ -77,7 +77,7 @@ trait PeriodicRegionalReporting[F,P] extends RegionalReportingStrategy[F,P] {
  */
 trait SwarmingCompletedRegionalReporting[F,P] extends RegionalReportingStrategy[F,P] {
 
-  override def reportForRegion(progressReport: ProgressReport[F,P], childIndex: Int, evaluatedPosition: EvaluatedPosition[F,P], progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = {
+  override def reportForRegion(progressReport: ProgressReport[F,P], childIndex: Int, evaluatedPosition: Seq[PositionIteration[F,P]], progress: Progress, terminateCriteriaStatus: TerminateCriteriaStatus) = {
     if (progressReport.completedType == SwarmingCompleted) {
       val newProgressReport = ProgressReport(progressReport.completedType, childIndex, evaluatedPosition, progressReport.iteration, progress, terminateCriteriaStatus)
       report(newProgressReport)

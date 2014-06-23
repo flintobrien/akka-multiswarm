@@ -1,6 +1,6 @@
 package com.hungrylearner.pso.swarm
 
-import com.hungrylearner.pso.particle.{EvaluatedPosition, Position, Particle}
+import com.hungrylearner.pso.particle.{PositionIteration, Position, Particle}
 import com.hungrylearner.pso.swarm.State._
 import com.hungrylearner.pso.swarm.Report._
 
@@ -96,21 +96,21 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
     if( terminateCriteriaStatus.isMet) {
 
       state = SWARMING_COMPLETED
-      reportingStrategy.reportSwarmingCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne, terminateCriteriaStatus)
+      reportingStrategy.reportSwarmingCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne, terminateCriteriaStatus)
 
     } else {
 
       if( state == SWARMING_AROUND) {
         iterationsLeftInSwarmAround -= 1
         if( iterationsLeftInSwarmAround > 0) {
-          reportingStrategy.reportOneIterationCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
+          reportingStrategy.reportOneIterationCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne)
           context.self ! SwarmOneIteration
         } else {
           swarmAroundCompleted( terminateCriteriaStatus)
         }
       } else {
         state = RESTING
-        reportingStrategy.reportOneIterationCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
+        reportingStrategy.reportOneIterationCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne)
       }
     }
   }
@@ -119,10 +119,10 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
     // TODO: We're testing terminateCriteriaStatus.isMet twice. Doesn't seem right.
     if( terminateCriteriaStatus.isMet) {
       state = SWARMING_COMPLETED
-      reportingStrategy.reportSwarmingCompleted(childIndex, EvaluatedPosition(bestPosition, isBest = true), iteration, ProgressOneOfOne, terminateCriteriaStatus)
+      reportingStrategy.reportSwarmingCompleted(childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne, terminateCriteriaStatus)
     } else {
       state = RESTING
-      reportingStrategy.reportSwarmAroundCompleted( childIndex, EvaluatedPosition(bestPosition, isBest=true), iteration, ProgressOneOfOne)
+      reportingStrategy.reportSwarmAroundCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne)
     }
   }
 
