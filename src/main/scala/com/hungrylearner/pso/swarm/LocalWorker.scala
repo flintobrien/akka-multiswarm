@@ -35,11 +35,7 @@ trait LocalWorker[F,P] extends Worker[F,P] {
   protected def onCancelSwarming(): Unit
 }
 
-
-/**
- * Created by flint on 6/1/14.
- */
-trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
+trait AbstractLocalWorker[F,P] extends LocalWorker[F,P] {
   this: LocalId[F,P] with LocalSocialInfluence[F,P] with LocalTerminateCriteria[F,P] =>
 
   import TerminateCriteriaStatus._
@@ -47,12 +43,11 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
   /**
    * The initial position is iteration 0. Iteration is incremented to 1 at the start of the first iteration.
    */
-  private val particles = List.tabulate[Particle[F,P]]( config.particleCount) { i => config.particleFactory( childIndex, i, config.particleCount) }
-  override protected var bestPosition: Position[F,P] = particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition
+  protected val particles = List.tabulate[Particle[F,P]]( config.particleCount) { i => config.particleFactory( childIndex, i, config.particleCount) }
   protected var iteration = 0
   protected var iterationsLeftInSwarmAround = 0
 
-
+  def bestPositions: Seq[PositionIteration[F,P]]
 
   override protected def onSwarmAround( iterations: Int): Unit = {
 
@@ -67,6 +62,40 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
       onOneIteration( bestPosition)
     } // TODO: else what should we do? Report invalid command?
   }
+
+  def swarmAroundCompleted( terminateCriteriaStatus: TerminateCriteriaStatus): Unit = {
+    // TODO: We're testing terminateCriteriaStatus.isMet twice. Doesn't seem right.
+    if( terminateCriteriaStatus.isMet) {
+      state = SWARMING_COMPLETED
+      reportingStrategy.reportSwarmingCompleted(childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne, terminateCriteriaStatus)
+    } else {
+      state = RESTING
+      reportingStrategy.reportSwarmAroundCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne)
+    }
+  }
+
+
+  override protected def onCancelSwarming(): Unit = {
+    state = SWARMING_CANCELLED
+    Logger.info( s"LocalWorkerImpl.onCancelSwarming state = SWARMING_CANCELLED for ${context.self.path}")
+  }
+
+  def clipIterationsToConfiguredMax( iterations: Int): Int = {
+    math.min( config.context.iterations - iteration, iterations)
+  }
+
+}
+
+  /**
+ * Created by flint on 6/1/14.
+ */
+trait LocalWorkerImpl[F,P] extends AbstractLocalWorker[F,P] {
+  this: LocalId[F,P] with LocalSocialInfluence[F,P] with LocalTerminateCriteria[F,P] =>
+
+  import TerminateCriteriaStatus._
+
+  override protected var bestPosition: Position[F,P] = particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition
+  override def bestPositions: Seq[PositionIteration[F,P]] = Seq( PositionIteration( bestPosition, iteration))
 
   override protected def onOneIteration( bestForIteration: Position[F,P]): Unit = {
 
@@ -96,45 +125,23 @@ trait LocalWorkerImpl[F,P] extends LocalWorker[F,P] {
     if( terminateCriteriaStatus.isMet) {
 
       state = SWARMING_COMPLETED
-      reportingStrategy.reportSwarmingCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne, terminateCriteriaStatus)
+      reportingStrategy.reportSwarmingCompleted( childIndex, bestPositions, iteration, ProgressOneOfOne, terminateCriteriaStatus)
 
     } else {
 
       if( state == SWARMING_AROUND) {
         iterationsLeftInSwarmAround -= 1
         if( iterationsLeftInSwarmAround > 0) {
-          reportingStrategy.reportOneIterationCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne)
+          reportingStrategy.reportOneIterationCompleted( childIndex, bestPositions, iteration, ProgressOneOfOne)
           context.self ! SwarmOneIteration
         } else {
           swarmAroundCompleted( terminateCriteriaStatus)
         }
       } else {
         state = RESTING
-        reportingStrategy.reportOneIterationCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne)
+        reportingStrategy.reportOneIterationCompleted( childIndex, bestPositions, iteration, ProgressOneOfOne)
       }
     }
   }
-
-  def swarmAroundCompleted( terminateCriteriaStatus: TerminateCriteriaStatus): Unit = {
-    // TODO: We're testing terminateCriteriaStatus.isMet twice. Doesn't seem right.
-    if( terminateCriteriaStatus.isMet) {
-      state = SWARMING_COMPLETED
-      reportingStrategy.reportSwarmingCompleted(childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne, terminateCriteriaStatus)
-    } else {
-      state = RESTING
-      reportingStrategy.reportSwarmAroundCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne)
-    }
-  }
-
-
-  override protected def onCancelSwarming(): Unit = {
-    state = SWARMING_CANCELLED
-    Logger.info( s"LocalWorkerImpl.onCancelSwarming state = SWARMING_CANCELLED for ${context.self.path}")
-  }
-
-  def clipIterationsToConfiguredMax( iterations: Int): Int = {
-    math.min( config.context.iterations - iteration, iterations)
-  }
-
 
 }

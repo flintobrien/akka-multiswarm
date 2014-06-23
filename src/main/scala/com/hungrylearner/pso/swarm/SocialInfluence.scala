@@ -11,7 +11,7 @@ trait LocalSocialInfluence[F,P] extends SocialInfluence[F,P] {
 
   override def onInfluentialPosition(ip: InfluentialPosition[F,P]) = {
     // Comes from parent
-    //   - If really is best, send it down to children
+    //   - If really is best, use it.
     if( ip.newBestPositions.head.position < bestPosition) {
       bestPosition = ip.newBestPositions.head.position
     }

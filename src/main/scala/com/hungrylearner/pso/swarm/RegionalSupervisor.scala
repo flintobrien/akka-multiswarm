@@ -121,22 +121,17 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
 
 
   /**
-  * Decide whether the progress report's position is better than our bestPosition.
+  * Give a report of bestPositions, return a list of positions that are better than our current best.
+   * For single objective swarms, assume the list is length 0 or 1.
   *
   * @param progressReport Progress report from child
   * @return Our evaluation of the reported position compared to our bestPosition
   */
   def getBetterPositions( progressReport: ProgressReport[F,P]): Seq[PositionIteration[F,P]] = {
-    if( progressReport.newBestPositions.isEmpty)
-      return progressReport.newBestPositions
-    else {
-      if( isBetterPosition( progressReport.newBestPositions.head))
-        return progressReport.newBestPositions
-      else
-        return Seq()
-    }
-//    val isRegionalBest = isBetterPosition( progressReport.newBestPositions)
-//    PositionIteration( progressReport.newBestPositions.position, isRegionalBest)
+    if( ! progressReport.newBestPositions.isEmpty && isBetterPosition( progressReport.newBestPositions.head))
+      progressReport.newBestPositions
+    else
+      Seq()
   }
 
   protected def calculateRegionalProgress( progressReport: ProgressReport[F,P]): Progress = {
