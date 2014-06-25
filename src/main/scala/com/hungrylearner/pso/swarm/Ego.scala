@@ -16,7 +16,6 @@ trait SingleEgo[F,P] extends Ego[F,P] {
 
 trait MultiEgo[F,P] extends Ego[F,P] {
   def bestPositions: Seq[PositionIteration[F,P]]
-//  def storePositionsIfNonDominated( positions: Seq[Position[F,P]]): Seq[Position[F,P]]
 }
 
 

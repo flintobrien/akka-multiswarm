@@ -79,8 +79,6 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
 
     val regionalProgress = calculateRegionalProgress( childReport)
     val newBestPositions = storePositionsIfBest( childReport.newBestPositions)
-//    val newBestPositions = getBetterPositions( childReport)
-//    updateBestPositions( newBestPositions)
 
     val terminateCriteriaStatus = terminateCriteriaMet( childReport, regionalProgress)
     if( terminateCriteriaStatus == TerminateCriteriaMetNow) {
@@ -115,25 +113,6 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
     Logger.info( s"RegionalSwarmActor Terminated( child='${child.path.name}')")
   }
 
-//  def updateBestPositions( betterPositions: Seq[PositionIteration[F,P]]) =
-//    if( ! betterPositions.isEmpty)
-//      bestPosition = betterPositions.head.position
-
-
-
-  /**
-  * Give a report of bestPositions, return a list of positions that are better than our current best.
-   * For single objective swarms, assume the list is length 0 or 1.
-  *
-  * @param progressReport Progress report from child
-  * @return Our evaluation of the reported position compared to our bestPosition
-  */
-//  def getBetterPositions( progressReport: ProgressReport[F,P]): Seq[PositionIteration[F,P]] = {
-//    if( ! progressReport.newBestPositions.isEmpty && isBetterPosition( progressReport.newBestPositions.head))
-//      progressReport.newBestPositions
-//    else
-//      Seq()
-//  }
 
   protected def calculateRegionalProgress( progressReport: ProgressReport[F,P]): Progress = {
     val descendantCompletedCount = descendantProgressCounters.incrementProgressCount( progressReport)
@@ -152,10 +131,5 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
 
     Progress( childProgress, descendantProgress, completed)
   }
-
-
-//  protected def isBetterPosition( evaluatedPosition: PositionIteration[F,P]): Boolean = {
-//     bestPosition == null || evaluatedPosition.position < bestPosition
-//  }
 
 }

@@ -95,38 +95,6 @@ class RegionalSupervisorSpec extends Specification with Mockito {
     val newBestPositions = Seq( PositionIteration( position, iteration=1))
     val newBestsEmpty = Seq[PositionIteration[Int,Int]]()
 
-//    "  getBetterPositions should use report.newBestPositions" in new AkkaTestkitSpecs2Support {
-//
-//      val config = mock[RegionalSwarmConfig[Int,Int]]
-//
-//      val childIndex = 0
-//      val pr = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, newBestPositions, iteration=1, ProgressOneOfOne, TerminateCriteriaMetNow)
-//
-//      val selfy = TestProbe()
-//      val parent = TestProbe()
-//      val context = makeActorContext( selfy, parent)
-//      val reportingStrategy = new ReportingStrategyProxy[Int,Int]( parent.ref)
-//
-//      val underTest = new RegionalSupervisorUnderTest[Int,Int]( config, childIndex, context, reportingStrategy)
-//      underTest.getBetterPositions( pr) must beEqualTo( Seq( PositionIteration( position, iteration=1)))
-//    }
-//
-//    "  getBetterPositions should use isBest=false if bestPosition is null" in new AkkaTestkitSpecs2Support {
-//
-//      val config = mock[RegionalSwarmConfig[Int,Int]]
-//
-//      val childIndex = 0
-//      val pr = ProgressReport[Int,Int](SwarmAroundCompleted, childIndex, newBestPositions, iteration=1, ProgressOneOfOne, TerminateCriteriaMetNow)
-//
-//      val selfy = TestProbe()
-//      val parent = TestProbe()
-//      val context = makeActorContext( selfy, parent)
-//      val reportingStrategy = new ReportingStrategyProxy[Int,Int]( parent.ref)
-//
-//      val underTest = new RegionalSupervisorUnderTest[Int,Int]( config, childIndex, context, reportingStrategy)
-//      underTest.getBetterPositions( pr) must beEqualTo( Seq( PositionIteration( position, iteration=1)))
-//    }
-
     "  onProgressReport should report new best position to parent" in new AkkaTestkitSpecs2Support {
 
       val config = mock[RegionalSwarmConfig[Int,Int]]
