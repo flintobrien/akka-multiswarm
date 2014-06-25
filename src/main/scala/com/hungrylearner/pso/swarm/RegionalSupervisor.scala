@@ -58,7 +58,7 @@ object RegionalSupervisor {
   *
   */
 trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
-  this: RegionalId[F,P] with RegionalTerminateCriteria[F,P] =>
+  this: RegionalId[F,P] with Ego[F,P] with RegionalTerminateCriteria[F,P] =>
 
   import RegionalSupervisor._
   import TerminateCriteriaStatus._
@@ -78,13 +78,14 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   override def onProgressReport( childReport: ProgressReport[F,P], originator: ActorRef): Unit = {
 
     val regionalProgress = calculateRegionalProgress( childReport)
-    val betterPositions = getBetterPositions( childReport)
-    updateBestPositions( betterPositions)
+    val newBestPositions = storePositionsIfBest( childReport.newBestPositions)
+//    val newBestPositions = getBetterPositions( childReport)
+//    updateBestPositions( newBestPositions)
 
     val terminateCriteriaStatus = terminateCriteriaMet( childReport, regionalProgress)
     if( terminateCriteriaStatus == TerminateCriteriaMetNow) {
 
-      // We're not going to stop or child actors now. If some of the children are not completed,
+      // We're not going to stop our child actors now. If some of the children are not completed,
       // send a CancelSwarming. Our parent needs to deal with stopping the whole actor tree later.
       //
       if( childrenHaveNotCompleted( childReport.completedType, regionalProgress))
@@ -92,14 +93,14 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
     }
 
     // Report the position our child gave us. evaluatedPosition specifies whether it is our best or not.
-    reportingStrategy.reportForRegion( childReport, childIndex, betterPositions, regionalProgress, terminateCriteriaStatus)
+    reportingStrategy.reportForRegion( childReport, childIndex, newBestPositions, regionalProgress, terminateCriteriaStatus)
 
     // If terminate criteria is not met, tell the children (except for the originator child who sent the position).
     // The implementer of tellChildren decides when and whether the children should be told. This decision can be based on
     // evaluatedPosition.isBest or other criteria.
     //
     if( terminateCriteriaStatus.isNotMet)
-      tellChildren( betterPositions, childReport.iteration, regionalProgress, originator)
+      tellChildren( newBestPositions, childReport.iteration, regionalProgress, originator)
   }
 
   protected def childrenHaveNotCompleted( completedType: CompletedType, regionalProgress: Progress) =
@@ -114,9 +115,9 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
     Logger.info( s"RegionalSwarmActor Terminated( child='${child.path.name}')")
   }
 
-  def updateBestPositions( betterPositions: Seq[PositionIteration[F,P]]) =
-    if( ! betterPositions.isEmpty)
-      bestPosition = betterPositions.head.position
+//  def updateBestPositions( betterPositions: Seq[PositionIteration[F,P]]) =
+//    if( ! betterPositions.isEmpty)
+//      bestPosition = betterPositions.head.position
 
 
 
@@ -127,12 +128,12 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   * @param progressReport Progress report from child
   * @return Our evaluation of the reported position compared to our bestPosition
   */
-  def getBetterPositions( progressReport: ProgressReport[F,P]): Seq[PositionIteration[F,P]] = {
-    if( ! progressReport.newBestPositions.isEmpty && isBetterPosition( progressReport.newBestPositions.head))
-      progressReport.newBestPositions
-    else
-      Seq()
-  }
+//  def getBetterPositions( progressReport: ProgressReport[F,P]): Seq[PositionIteration[F,P]] = {
+//    if( ! progressReport.newBestPositions.isEmpty && isBetterPosition( progressReport.newBestPositions.head))
+//      progressReport.newBestPositions
+//    else
+//      Seq()
+//  }
 
   protected def calculateRegionalProgress( progressReport: ProgressReport[F,P]): Progress = {
     val descendantCompletedCount = descendantProgressCounters.incrementProgressCount( progressReport)
@@ -153,8 +154,8 @@ trait RegionalSupervisor[F,P] extends Supervisor[F,P] {
   }
 
 
-  protected def isBetterPosition( evaluatedPosition: PositionIteration[F,P]): Boolean = {
-     bestPosition == null || evaluatedPosition.position < bestPosition
-  }
+//  protected def isBetterPosition( evaluatedPosition: PositionIteration[F,P]): Boolean = {
+//     bestPosition == null || evaluatedPosition.position < bestPosition
+//  }
 
 }

@@ -21,6 +21,7 @@ package com.hungrylearner.pso.swarm
  */
 trait SwarmIntelligence[F,P]
   extends Id[F,P]
+  with Ego[F,P]
   with Worker[F,P]
   with SocialInfluence[F,P]
   with TerminateCriteria[F,P]

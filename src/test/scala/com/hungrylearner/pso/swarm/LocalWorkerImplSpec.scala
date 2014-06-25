@@ -50,6 +50,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
 
   class LocalIdImplUnderTest[F,P]( override val config: LocalSwarmConfig[F,P], override val childIndex: Int, override val context: ActorContext)
     extends LocalId[F,P]
+    with SingleEgoImpl[F,P]
     with LocalWorkerImpl[F,P]
     with LocalSocialInfluence[F,P]
     with LocalTerminateOnMaxIterations[F,P]

@@ -19,7 +19,7 @@ trait Id[F,P] {
   val childIndex: Int
 
   /** The current best position known by the swarm */
-  protected var bestPosition: Position[F,P]
+//  protected var bestPosition: Position[F,P]
 
   /** The actor context used for accessing our parent and possible children */
   protected val context: ActorContext

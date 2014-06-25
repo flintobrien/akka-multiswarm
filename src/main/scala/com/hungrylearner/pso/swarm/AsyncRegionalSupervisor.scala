@@ -18,7 +18,7 @@ import akka.actor.ActorRef
  *
  */
 trait AsyncRegionalSupervisor[F,P] extends RegionalSupervisor[F,P] {
-  this: RegionalId[F,P] with RegionalTerminateCriteria[F,P] =>
+  this: RegionalId[F,P] with Ego[F,P] with RegionalTerminateCriteria[F,P] =>
 
 
   /**

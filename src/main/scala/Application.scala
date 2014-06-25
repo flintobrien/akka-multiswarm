@@ -15,6 +15,7 @@ class MyReportingStrategy[F,P]( override val parent: ActorRef)
 
 class MyLocalSwarmIntelligence[F,P]( override val config: LocalSwarmConfig[F,P], override val childIndex: Int, override val context: ActorContext)
   extends LocalSwarmIntelligence[F,P]
+  with SingleEgoImpl[F,P]
   with LocalWorkerImpl[F,P]
   with LocalSocialInfluence[F,P]
   with LocalTerminateOnMaxIterations[F,P]

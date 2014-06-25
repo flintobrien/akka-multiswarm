@@ -17,7 +17,8 @@ object Report {
    *
    * @param completedType Task of type ONE_ITERATION, SWARM_AROUND, or SWARMING has completed.
    * @param childIndex Index if the child that sent this report
-   * @param newBestPositions New best positions that have not been previously reported.
+   * @param newBestPositions New best positions that have not been previously reported. For single
+   *                         objective swarms, the sequence length is 0 or 1.
    * @param iteration The iteration when the report was generated. This is an absolute number across all
    *                  reports.
    * @param progress Progress statistics

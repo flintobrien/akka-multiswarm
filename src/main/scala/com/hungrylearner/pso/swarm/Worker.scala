@@ -44,13 +44,13 @@ trait Supervisor[F,P] extends Worker[F,P] {
    * Decide if and when to influence children by sending them knowledge of a (potentially)
    * better position. The position sent is usually the region's current bestPosition.
    *
-   * @param evaluatedPosition The position given us by the Supervisor.
+   * @param newBestPositions New best positions that have never been reported.
    * @param iteration The iteration of the child when the progress report was generated.
    * @param progress The current progress of our children for the reported iteration. This can be
    *                 used in the decision of when to influence children. For example, we could
    *                 wait on influencing children until all children have reported their progress
    *                 has completed for the given command and iteration.
    */
-  protected def tellChildren( evaluatedPosition: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress, originator: ActorRef)
+  protected def tellChildren( newBestPositions: Seq[PositionIteration[F,P]], iteration: Int, progress: Progress, originator: ActorRef)
 
 }

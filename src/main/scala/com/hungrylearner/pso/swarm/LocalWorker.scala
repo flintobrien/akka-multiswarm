@@ -13,7 +13,7 @@ trait LocalWorker[F,P] extends Worker[F,P] {
   override def onCommand(command: Command) = command match {
 
     case SwarmOneIteration =>
-      if (notDone) onOneIteration( bestPosition)
+      if (notDone) onOneIteration
 
     case SwarmAround( iterations) =>
       if (notDone) onSwarmAround( iterations)
@@ -31,7 +31,7 @@ trait LocalWorker[F,P] extends Worker[F,P] {
   protected def notDone = state != SWARMING_CANCELLED && state != SWARMING_COMPLETED
 
   protected def onSwarmAround( iterations: Int): Unit
-  protected def onOneIteration( bestForIteration: Position[F,P]): Unit
+  protected def onOneIteration: Unit
   protected def onCancelSwarming(): Unit
 }
 
@@ -47,30 +47,55 @@ trait AbstractLocalWorker[F,P] extends LocalWorker[F,P] {
   protected var iteration = 0
   protected var iterationsLeftInSwarmAround = 0
 
-  def bestPositions: Seq[PositionIteration[F,P]]
+  def bestPositionsForReport: Seq[PositionIteration[F,P]]
 
   override protected def onSwarmAround( iterations: Int): Unit = {
 
     // TODO: If already in SwarmAround, add this to a pending list of SwarmArounds
     Logger.debug( "LocalSwarm.onSwarmAround")
-    require( bestPosition != null, "LocalSwarm.onSwarmAround: bestParticle not set. Probably because Init message not received.")
 
     iterationsLeftInSwarmAround = clipIterationsToConfiguredMax( iterations)
 
     if( state != SWARMING_COMPLETED && iterationsLeftInSwarmAround > 0) {
       state = SWARMING_AROUND
-      onOneIteration( bestPosition)
+      onOneIteration
     } // TODO: else what should we do? Report invalid command?
+  }
+
+  def oneIterationCompleted(): Unit = {
+
+    val terminateCriteriaStatus = terminateCriteriaMet( iteration)
+    // TODO: if iterations are done and terminate criteria is not met, we need to stop, but what do we report?
+    if( terminateCriteriaStatus.isMet) {
+
+      state = SWARMING_COMPLETED
+      reportingStrategy.reportSwarmingCompleted( childIndex, bestPositionsForReport, iteration, ProgressOneOfOne, terminateCriteriaStatus)
+
+    } else {
+
+      if( state == SWARMING_AROUND) {
+        iterationsLeftInSwarmAround -= 1
+        if( iterationsLeftInSwarmAround > 0) {
+          reportingStrategy.reportOneIterationCompleted( childIndex, bestPositionsForReport, iteration, ProgressOneOfOne)
+          context.self ! SwarmOneIteration
+        } else {
+          swarmAroundCompleted( terminateCriteriaStatus)
+        }
+      } else {
+        state = RESTING
+        reportingStrategy.reportOneIterationCompleted( childIndex, bestPositionsForReport, iteration, ProgressOneOfOne)
+      }
+    }
   }
 
   def swarmAroundCompleted( terminateCriteriaStatus: TerminateCriteriaStatus): Unit = {
     // TODO: We're testing terminateCriteriaStatus.isMet twice. Doesn't seem right.
     if( terminateCriteriaStatus.isMet) {
       state = SWARMING_COMPLETED
-      reportingStrategy.reportSwarmingCompleted(childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne, terminateCriteriaStatus)
+      reportingStrategy.reportSwarmingCompleted(childIndex, bestPositionsForReport, iteration, ProgressOneOfOne, terminateCriteriaStatus)
     } else {
       state = RESTING
-      reportingStrategy.reportSwarmAroundCompleted( childIndex, Seq( PositionIteration(bestPosition, iteration)), iteration, ProgressOneOfOne)
+      reportingStrategy.reportSwarmAroundCompleted( childIndex, bestPositionsForReport, iteration, ProgressOneOfOne)
     }
   }
 
@@ -90,58 +115,29 @@ trait AbstractLocalWorker[F,P] extends LocalWorker[F,P] {
  * Created by flint on 6/1/14.
  */
 trait LocalWorkerImpl[F,P] extends AbstractLocalWorker[F,P] {
-  this: LocalId[F,P] with LocalSocialInfluence[F,P] with LocalTerminateCriteria[F,P] =>
+  this: LocalId[F,P] with SingleEgo[F,P] with LocalSocialInfluence[F,P] with LocalTerminateCriteria[F,P] =>
 
-  import TerminateCriteriaStatus._
+  storePositionIfBest( particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition)
 
-  override protected var bestPosition: Position[F,P] = particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition
-  override def bestPositions: Seq[PositionIteration[F,P]] = Seq( PositionIteration( bestPosition, iteration))
+  override def bestPositionsForReport: Seq[PositionIteration[F,P]] = Seq( PositionIteration( bestPosition, iteration))
 
-  override protected def onOneIteration( bestForIteration: Position[F,P]): Unit = {
+  override protected def onOneIteration: Unit = {
 
     if( state != SWARMING_AROUND)
       state = SWARMING_ONE_ITERATION
     iteration += 1
     particles.foreach{ p =>
-      // TODO: This may find several positions that are better than bestForIteration. Why not pass in bestPosition to find the very best?
       // TODO: Can we pick a position out of the pareto frontier to pass to update or just pass the whole Pareto frontier?
-      p.update( iteration, bestForIteration) match {
+      p.update( iteration, bestPosition) match {
         case Some(newPersonalBestPosition) =>
-          if( newPersonalBestPosition < bestForIteration)
-            bestPosition = newPersonalBestPosition
+          storePositionIfBest( newPersonalBestPosition)
         case None =>
       }
     }
 
-    Logger.debug( "LocalSwarm.oneIteration end iteration={} bestParticle: {}", iteration, bestPosition.value)
+    Logger.debug( s"LocalSwarm.oneIteration end iteration=$iteration bestPosition: ${bestPosition.value}")
 
     oneIterationCompleted()
-  }
-
-  def oneIterationCompleted(): Unit = {
-
-    val terminateCriteriaStatus = terminateCriteriaMet( iteration)
-    // TODO: if iterations are done and terminate criteria is not met, we need to stop, but what do we report?
-    if( terminateCriteriaStatus.isMet) {
-
-      state = SWARMING_COMPLETED
-      reportingStrategy.reportSwarmingCompleted( childIndex, bestPositions, iteration, ProgressOneOfOne, terminateCriteriaStatus)
-
-    } else {
-
-      if( state == SWARMING_AROUND) {
-        iterationsLeftInSwarmAround -= 1
-        if( iterationsLeftInSwarmAround > 0) {
-          reportingStrategy.reportOneIterationCompleted( childIndex, bestPositions, iteration, ProgressOneOfOne)
-          context.self ! SwarmOneIteration
-        } else {
-          swarmAroundCompleted( terminateCriteriaStatus)
-        }
-      } else {
-        state = RESTING
-        reportingStrategy.reportOneIterationCompleted( childIndex, bestPositions, iteration, ProgressOneOfOne)
-      }
-    }
   }
 
 }

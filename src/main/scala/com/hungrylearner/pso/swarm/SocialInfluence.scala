@@ -7,28 +7,27 @@ trait SocialInfluence[F,P] {
 }
 
 trait LocalSocialInfluence[F,P] extends SocialInfluence[F,P] {
-  this: Id[F,P] =>
+  this: Id[F,P] with Ego[F,P] =>
 
   override def onInfluentialPosition(ip: InfluentialPosition[F,P]) = {
     // Comes from parent
     //   - If really is best, use it.
-    if( ip.newBestPositions.head.position < bestPosition) {
-      bestPosition = ip.newBestPositions.head.position
-    }
+    storePositionIfBest( ip.newBestPositions.head.position)
+//    if( ip.newBestPositions.head.position < bestPosition) {
+//      bestPosition = ip.newBestPositions.head.position
+//    }
   }
 }
 
 trait RegionalSocialInfluence[F,P] extends SocialInfluence[F,P] {
-  this: RegionalId[F,P] =>
+  this: RegionalId[F,P] with Ego[F,P] =>
   //    this: AbstractRegionalSwarm =>
 
   override def onInfluentialPosition( ip: InfluentialPosition[F,P]) = {
     // Comes from parent
     //   - If really is best, send it down to children
-    if( ip.newBestPositions.head.position < bestPosition) {
-      bestPosition = ip.newBestPositions.head.position
-      sendToAllChildren( ip) // null: Send to all children. Don't exclude one.
-    }
+    if( storePositionIfBest( ip.newBestPositions.head.position))
+      sendToAllChildren( ip)
   }
 
 }
