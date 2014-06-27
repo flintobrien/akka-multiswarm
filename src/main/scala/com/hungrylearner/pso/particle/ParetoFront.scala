@@ -3,7 +3,7 @@ package com.hungrylearner.pso.particle
 /**
  * Container of positions that are part of the Pareto Frontier.
  */
-trait ParetoFront[F,P] {
+trait ParetoFront[F,P] extends BestPosition[F,P] {
 
   /**
    * Store position to the Pareto frontier if it's not dominated by any positions
@@ -13,7 +13,8 @@ trait ParetoFront[F,P] {
    * @param position Position to add if not dominated by current Pareto frontier
    * @return True if the position was added.
    */
-  def storePositionIfNonDominated( position: Position[F,P]): Boolean
+  def storePositionIfNonDominated( position: MutablePosition[F,P]): Option[Position[F,P]]
+//  override def setIfBest( position: MutablePosition[F,P]): Option[Position[F,P]]
 
   /**
    *

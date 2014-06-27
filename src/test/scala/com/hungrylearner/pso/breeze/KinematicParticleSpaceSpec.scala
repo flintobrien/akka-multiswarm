@@ -86,7 +86,7 @@ class KinematicParticleSpaceSpec extends Specification with BeforeAfter with Moc
         val kc = kinematicsContext
         val psc = particleSpaceContext
       } with AbstractKinematicParticleSpaceDVD {
-        override def personalBest = makePosition(personalBest1)
+        personalBest.setIfBest( makeMutablePosition(personalBest1))
       }
       val kp1 = new KP()
       kp1.velocity(0) must beEqualTo(2.0)
@@ -124,7 +124,7 @@ class KinematicParticleSpaceSpec extends Specification with BeforeAfter with Moc
         val kc = kinematicsContext
         val psc = particleSpaceContext
       } with AbstractKinematicParticleSpaceDVD {
-        override def personalBest = makePosition(personalBest1)
+        personalBest.setIfBest( makeMutablePosition(personalBest1))
       }
       val kp1 = new KP()
       kp1.velocity(0) must beEqualTo(2.0)

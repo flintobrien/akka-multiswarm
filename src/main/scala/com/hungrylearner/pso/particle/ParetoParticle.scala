@@ -21,7 +21,7 @@ trait ParetoParticle[F,P] extends ParetoParticleSpace[F,P] with Kinematic[F,P] {
     val bestPosition = bestPositions.getOneBestPosition( position)
     updateVelocity( iteration, bestPosition)
     position.addVelocity( velocity, iteration)
-    updatePersonalBest
+    personalBest.storePositionIfNonDominated( position)
   }
 
 //  def fittest( other: Particle[F,P]): Particle[F,P] =

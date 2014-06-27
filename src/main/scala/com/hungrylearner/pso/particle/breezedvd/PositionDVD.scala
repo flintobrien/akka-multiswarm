@@ -1,7 +1,7 @@
 package com.hungrylearner.pso.particle.breezedvd
 
 import breeze.linalg.DenseVector
-import com.hungrylearner.pso.particle.{Position, MutablePosition}
+import com.hungrylearner.pso.particle.{BestPositionImpl, Position, MutablePosition}
 import akka.event.Logging
 
 /**
@@ -31,6 +31,10 @@ class PositionDVD( private val mutableValue: DenseVector[Double], private val _f
   override def compare(that: Position[Double, DenseVector[Double]]) = if (_fitness < that.fitness) -1 else 1
 }
 
+class BestPositionDVD( position: MutablePositionDVD) extends BestPositionImpl[Double, DenseVector[Double]]
+{
+  setIfBest( position)
+}
 
 /**
  * Created by flint on 5/16/14.

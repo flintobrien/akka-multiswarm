@@ -7,6 +7,8 @@ package com.hungrylearner.pso.swarm
  * The Id (from psychoanalysis) contains innate information and processes used by the other parts of a
  * SwarmIntelligence. Of these, bestPosition and actor context are most prominent.
  *
+ * The Ego stores the current best position (or positions for multi-objective swarms).
+ *
  * The Worker runs each iteration of the swarm. For a regional swarm the Worker is a Supervisor which
  * manages sub swarms (which themselves can be local or regional swarms).
  *

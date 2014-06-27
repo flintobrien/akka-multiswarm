@@ -12,30 +12,6 @@ import com.hungrylearner.pso.particle.breezedvd.MutablePositionDVD
  */
 class KinematicsSpec  extends Specification with BeforeAfter with Mockito  {
 
-//  trait ParticleSpaceMock extends ParticleSpaceLike {
-//    override type Position = Double
-//    override type PositionBounds = Double
-//    override type History = Double
-//    override def position: Position = 0.0
-//    override def personalBest: Position = 0.0
-//    override def positionBounds: PositionBounds = 0.0
-//    override def history: History = 0.0
-//    override def updatePosition: Unit
-//    override def updatePersonalBest: Position = 0.0
-//  }
-//  trait KinemeticsMock extends KinematicsLike with ParticleSpaceMock {
-//    override type Velocity = Double
-//    override type VelocityBounds = Double
-//    override type InertiaWeight = Double
-//    override type Phi = Double
-//    override def velocity: Velocity = 0.0
-//    override def velocityBounds: VelocityBounds = 0.0
-//    override def inertiaWeight: InertiaWeight = 0.0
-//    override def updateVelocity( iteration: Int, bestParticle: ParticleSpaceLike): Unit = {
-//      info( "updating velocity11 -------------------")
-//    }
-//  }
-
   class MutablePositionExample( initialPosition: DenseVector[Double], bounds: Array[(Double,Double)]) extends MutablePositionDVD( initialPosition, bounds) {
     override def evaluateFitness( v: DenseVector[Double], iteration: Int): Double = { sum(abs(v)) }
     // The constructor copies the position before using it.

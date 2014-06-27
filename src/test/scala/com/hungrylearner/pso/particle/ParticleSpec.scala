@@ -44,9 +44,7 @@ class ParticleSpec  extends Specification with BeforeAfter with Mockito  {
   }
 
 
-  abstract class ParticleUnderTest extends Particle[Double,DenseVector[Double]] {
-    override def velocity = DenseVector[Double](0.0)
-  }
+  abstract class ParticleUnderTest extends Particle[Double,DenseVector[Double]]
 
   override def before = {
 //    println( "before --------------------------")
@@ -95,12 +93,12 @@ class ParticleSpec  extends Specification with BeforeAfter with Mockito  {
 
       particle.position returns positionWith2
       particle.velocity returns DenseVector[Double](1.0)
+      particle.personalBest returns new BestPositionImpl[Double,DenseVector[Double]]
       particleBest.position returns positionWith1
       particle.update( 2, positionWith1)
 
       there was one( particle).update( 2, positionWith1) andThen
-        one(particle).updateVelocity( 2, positionWith1) andThen
-        one(particle).updatePersonalBest
+        one(particle).updateVelocity( 2, positionWith1)
     }
   }
 

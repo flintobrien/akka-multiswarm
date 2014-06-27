@@ -8,7 +8,7 @@ trait ParetoParticleSpace[F,P] {
   type History
 
   def position: MutablePosition[F,P]
-  def personalBest: ParetoFront[F,P]
+  val personalBest: ParetoFront[F,P]
   def positionBounds: PositionBounds
   def history: History
 
