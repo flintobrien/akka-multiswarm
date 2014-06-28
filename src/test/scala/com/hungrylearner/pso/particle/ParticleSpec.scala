@@ -6,7 +6,7 @@ import org.specs2.mock.Mockito
 import org.mockito.Matchers._
 import breeze.linalg.{DenseVector, sum}
 import breeze.numerics.abs
-import com.hungrylearner.pso.particle.breezedvd.MutablePositionDVD
+import com.hungrylearner.pso.particle.breezedvd.so.MutablePositionDVD
 
 /**
  * Created by flint on 5/14/14.
@@ -93,7 +93,7 @@ class ParticleSpec  extends Specification with BeforeAfter with Mockito  {
 
       particle.position returns positionWith2
       particle.velocity returns DenseVector[Double](1.0)
-      particle.personalBest returns new BestPositionImpl[Double,DenseVector[Double]]
+      //particle.personalBest returns new BestPositionImpl[Double,DenseVector[Double]]
       particleBest.position returns positionWith1
       particle.update( 2, positionWith1)
 

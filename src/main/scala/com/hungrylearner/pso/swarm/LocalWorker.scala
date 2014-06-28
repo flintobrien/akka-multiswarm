@@ -114,7 +114,7 @@ trait AbstractLocalWorker[F,P] extends LocalWorker[F,P] {
   /**
  * Created by flint on 6/1/14.
  */
-trait LocalWorkerImpl[F,P] extends AbstractLocalWorker[F,P] {
+trait SingleLocalWorker[F,P] extends AbstractLocalWorker[F,P] {
   this: LocalId[F,P] with SingleEgo[F,P] with LocalSocialInfluence[F,P] with LocalTerminateCriteria[F,P] =>
 
   storePositionIfBest( particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition)

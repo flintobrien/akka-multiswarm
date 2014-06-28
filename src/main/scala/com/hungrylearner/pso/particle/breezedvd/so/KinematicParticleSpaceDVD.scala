@@ -1,4 +1,4 @@
-package com.hungrylearner.pso.particle.breezedvd
+package com.hungrylearner.pso.particle.breezedvd.so
 
 import com.hungrylearner.pso.particle.{Position, MutablePosition, ParticleSpace, Kinematic}
 import breeze.linalg.DenseVector
@@ -40,7 +40,7 @@ object KinematicParticleSpaceDVD {
   }
 }
 
-trait KinematicParticleSpaceDVD extends Kinematic[Double,DenseVector[Double]] with ParticleSpaceDVD {
+trait KinematicParticleSpaceDVD extends Kinematic[Double,DenseVector[Double]] with ParticleSpaceDVD with PersonalBestStoreDVD {
   import KinematicParticleSpaceDVD._
 
   private val Logger = Logging.getLogger(kc.system, this)
@@ -67,9 +67,9 @@ trait KinematicParticleSpaceDVD extends Kinematic[Double,DenseVector[Double]] wi
 
     Logger.debug( f"velocity   : v:${_velocity(0)}%7.3f *= inertiaWeight($iteration):${inertiaWeight(iteration)}%7.3f)  =  ${_velocity(0)*inertiaWeight(iteration)}%7.3f    pos/fit=${position.value(0)}%7.3f / ${position.fitness}%7.3f")
     _velocity *= inertiaWeight(iteration)
-    val influenceP: DenseVector[Double] = (personalBest.get.value - position.value) * (rP * kc.phiP)
+    val influenceP: DenseVector[Double] = (personalBest.value - position.value) * (rP * kc.phiP)
     val influenceG: DenseVector[Double] = (bestPosition.value - position.value)  * (rG * kc.phiG)
-    Logger.debug( f"influence P: (pBest=${personalBest.get.value(0)}%7.3f - pos=${position.value(0)}%7.3f) * (rP=$rP%7.3f * ${kc.phiP}%7.3f   =   influenceP=${influenceP(0)}%7.3f")
+    Logger.debug( f"influence P: (pBest=${personalBest.value(0)}%7.3f - pos=${position.value(0)}%7.3f) * (rP=$rP%7.3f * ${kc.phiP}%7.3f   =   influenceP=${influenceP(0)}%7.3f")
     Logger.debug( f"influence G: (gBest=${bestPosition.value(0)}%7.3f - pos=${position.value(0)}%7.3f) * (rG=$rG%7.3f * ${kc.phiG}%7.3f   =   influenceG=${influenceG(0)}%7.3f")
     Logger.debug( f"velocity  v: v=${_velocity(0)}%7.3f + l=${influenceP(0)}%7.3f + g=${influenceG(0)}%7.3f")
     _velocity += influenceP

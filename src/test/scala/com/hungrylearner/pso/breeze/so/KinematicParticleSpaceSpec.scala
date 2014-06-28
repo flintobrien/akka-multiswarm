@@ -1,4 +1,4 @@
-package com.hungrylearner.pso.particle.breezedvd
+package com.hungrylearner.pso.particle.breezedvd.so
 
 import org.specs2.mutable._
 import org.mockito.Mockito._
@@ -85,8 +85,8 @@ class KinematicParticleSpaceSpec extends Specification with BeforeAfter with Moc
       class KP extends {
         val kc = kinematicsContext
         val psc = particleSpaceContext
-      } with AbstractKinematicParticleSpaceDVD {
-        personalBest.setIfBest( makeMutablePosition(personalBest1))
+      } with AbstractKinematicParticleSpaceDVD with SinglePersonalBestStoreDVD {
+        storePersonalBestIfBest( makeMutablePosition(personalBest1))
       }
       val kp1 = new KP()
       kp1.velocity(0) must beEqualTo(2.0)
@@ -123,8 +123,8 @@ class KinematicParticleSpaceSpec extends Specification with BeforeAfter with Moc
       class KP extends {
         val kc = kinematicsContext
         val psc = particleSpaceContext
-      } with AbstractKinematicParticleSpaceDVD {
-        personalBest.setIfBest( makeMutablePosition(personalBest1))
+      } with AbstractKinematicParticleSpaceDVD with SinglePersonalBestStoreDVD {
+        storePersonalBestIfBest( makeMutablePosition(personalBest1))
       }
       val kp1 = new KP()
       kp1.velocity(0) must beEqualTo(2.0)

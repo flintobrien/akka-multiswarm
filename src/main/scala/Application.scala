@@ -3,7 +3,7 @@ import akka.actor._
 import akka.event.{LoggingAdapter, Logging}
 import breeze.linalg.{DenseVector, sum}
 import breeze.numerics.abs
-import com.hungrylearner.pso.particle.breezedvd._
+import com.hungrylearner.pso.particle.breezedvd.so._
 import com.hungrylearner.pso.swarm._
 import com.hungrylearner.pso.swarm.Report.ProgressReport
 import scala.concurrent.duration._
@@ -13,10 +13,10 @@ class MyReportingStrategy[F,P]( override val parent: ActorRef)
   extends ParentReporter[F,P]
   with PeriodicLocalReporting[F,P]
 
-class MyLocalSwarmIntelligence[F,P]( override val config: LocalSwarmConfig[F,P], override val childIndex: Int, override val context: ActorContext)
+class MySingleLocalSwarmIntelligence[F,P]( override val config: LocalSwarmConfig[F,P], override val childIndex: Int, override val context: ActorContext)
   extends LocalSwarmIntelligence[F,P]
   with SingleEgoImpl[F,P]
-  with LocalWorkerImpl[F,P]
+  with SingleLocalWorker[F,P]
   with LocalSocialInfluence[F,P]
   with LocalTerminateOnMaxIterations[F,P]
 {
@@ -123,7 +123,7 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
       val swarmConfig = makeLocalSwarmConfig( iterations, context.system)
 
       val localSwarmIntelligenceFactory = ( childIndex: Int, context: ActorContext) =>
-        new MyLocalSwarmIntelligence[Double,DenseVector[Double]]( swarmConfig, childIndex, context)
+        new MySingleLocalSwarmIntelligence[Double,DenseVector[Double]]( swarmConfig, childIndex, context)
 
       val props = Props(classOf[LocalSwarmActor[Double,DenseVector[Double]]], localSwarmIntelligenceFactory, 0)
       swarm = context.actorOf(props,  "localSwarm1")

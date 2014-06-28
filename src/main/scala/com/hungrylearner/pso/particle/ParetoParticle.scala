@@ -3,7 +3,7 @@ package com.hungrylearner.pso.particle
 /**
  * Created by flint on 6/18/14.
  */
-trait ParetoParticle[F,P] extends ParetoParticleSpace[F,P] with Kinematic[F,P] {
+trait ParetoParticle[F,P] extends ParticleSpace[F,P] with Kinematic[F,P] {
 
   /**
    * Use the one best particle from the beginning of the step.
@@ -21,7 +21,7 @@ trait ParetoParticle[F,P] extends ParetoParticleSpace[F,P] with Kinematic[F,P] {
     val bestPosition = bestPositions.getOneBestPosition( position)
     updateVelocity( iteration, bestPosition)
     position.addVelocity( velocity, iteration)
-    personalBest.storePositionIfNonDominated( position)
+    storePersonalBestIfBest( position)
   }
 
 //  def fittest( other: Particle[F,P]): Particle[F,P] =

@@ -48,10 +48,10 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
   //  val parent = TestProbe()
   //  val mockReportingStrategy = new MockReportingStrategy( parent.ref)
 
-  class LocalIdImplUnderTest[F,P]( override val config: LocalSwarmConfig[F,P], override val childIndex: Int, override val context: ActorContext)
+  class SingleLocalIdUnderTest[F,P]( override val config: LocalSwarmConfig[F,P], override val childIndex: Int, override val context: ActorContext)
     extends LocalId[F,P]
     with SingleEgoImpl[F,P]
-    with LocalWorkerImpl[F,P]
+    with SingleLocalWorker[F,P]
     with LocalSocialInfluence[F,P]
     with LocalTerminateOnMaxIterations[F,P]
   {
@@ -76,7 +76,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         val self = TestProbe()
         val parent = TestProbe()
         val context = makeActorContext( self, parent)
-        val underTest = new LocalIdImplUnderTest[Int,Int]( config, childIndex, context)
+        val underTest = new SingleLocalIdUnderTest[Int,Int]( config, childIndex, context)
 
         underTest.onCommand( SwarmOneIteration)
 
@@ -96,7 +96,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         val self = TestProbe()
         val parent = TestProbe()
         val context = makeActorContext( self, parent)
-        val underTest = new LocalIdImplUnderTest[Int,Int]( config, childIndex, context)
+        val underTest = new SingleLocalIdUnderTest[Int,Int]( config, childIndex, context)
 
         underTest.onCommand( SwarmOneIteration)
 
@@ -117,7 +117,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         val self = TestProbe()
         val parent = TestProbe()
         val context = makeActorContext( self, parent)
-        val underTest = new LocalIdImplUnderTest[Int,Int]( config, childIndex, context)
+        val underTest = new SingleLocalIdUnderTest[Int,Int]( config, childIndex, context)
 
         underTest.onCommand( SwarmAround( 1))
 
@@ -137,7 +137,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         val self = TestProbe()
         val parent = TestProbe()
         val context = makeActorContext( self, parent)
-        val underTest = new LocalIdImplUnderTest[Int,Int]( config, childIndex, context)
+        val underTest = new SingleLocalIdUnderTest[Int,Int]( config, childIndex, context)
 
         underTest.onCommand( SwarmAround( 1))
 
@@ -154,7 +154,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         class TestActor extends Actor {
           val simulationContext = SimulationContext( iterations, system)
           val config = new MockLocalSwarmConfig( simulationContext)
-          val underTest = new LocalIdImplUnderTest[Int,Int]( config, childIndex, context)
+          val underTest = new SingleLocalIdUnderTest[Int,Int]( config, childIndex, context)
           def receive = {
             case command: Command ⇒ underTest.onCommand( command)
           }
@@ -180,7 +180,7 @@ class LocalWorkerImplSpec extends Specification with NoTimeConversions with Mock
         class TestActor extends Actor {
           val simulationContext = SimulationContext( iterations, system)
           val config = new MockLocalSwarmConfig( simulationContext)
-          val underTest = new LocalIdImplUnderTest[Int,Int]( config, childIndex, context)
+          val underTest = new SingleLocalIdUnderTest[Int,Int]( config, childIndex, context)
           def receive = {
             case command: Command ⇒ underTest.onCommand( command)
           }

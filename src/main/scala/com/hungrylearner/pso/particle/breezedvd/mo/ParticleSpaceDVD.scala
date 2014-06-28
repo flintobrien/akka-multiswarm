@@ -1,6 +1,6 @@
-package com.hungrylearner.pso.particle.breezedvd
+package com.hungrylearner.pso.particle.breezedvd.mo
 
-import com.hungrylearner.pso.particle.{BestPositionImpl, MutablePosition, ParticleSpace}
+import com.hungrylearner.pso.particle.{MutablePosition, ParticleSpace}
 import breeze.linalg.DenseVector
 
 object ParticleSpaceDVD {
@@ -24,8 +24,6 @@ trait ParticleSpaceDVD extends ParticleSpace[Double,DenseVector[Double]] {
   def index: Int
   val psc: ParticleSpaceContext
   protected var _position: MutablePositionDVD = psc.initialPosition( dimension, index)
-  // _personalBest needs to be a copy!  _position is mutable and will be updated
-  override val personalBest = new BestPositionDVD( _position)
 
   override def position = _position
   override def positionBounds = psc.positionBounds

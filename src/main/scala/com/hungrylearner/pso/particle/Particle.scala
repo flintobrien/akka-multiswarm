@@ -12,7 +12,8 @@ trait Particle[F,P] extends ParticleSpace[F,P] with Kinematic[F,P] {
   def update( iteration: Int, bestPosition: Position[F,P]): Option[Position[F,P]]  = {
     updateVelocity( iteration, bestPosition)
     position.addVelocity( velocity, iteration)
-    personalBest.setIfBest( position)
+//    personalBest.setIfBest( position)
+    storePersonalBestIfBest( position)
   }
 
   def fittest( other: Particle[F,P]): Particle[F,P] =
