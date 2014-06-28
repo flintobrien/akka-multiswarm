@@ -85,7 +85,7 @@ class KinematicParticleSpaceSpec extends Specification with BeforeAfter with Moc
       class KP extends {
         val kc = kinematicsContext
         val psc = particleSpaceContext
-      } with AbstractKinematicParticleSpaceDVD with SinglePersonalBestStoreDVD {
+      } with AbstractKinematicParticleSpaceDVD with PersonalBestStoreDVD {
         storePersonalBestIfBest( makeMutablePosition(personalBest1))
       }
       val kp1 = new KP()
@@ -123,7 +123,7 @@ class KinematicParticleSpaceSpec extends Specification with BeforeAfter with Moc
       class KP extends {
         val kc = kinematicsContext
         val psc = particleSpaceContext
-      } with AbstractKinematicParticleSpaceDVD with SinglePersonalBestStoreDVD {
+      } with AbstractKinematicParticleSpaceDVD with PersonalBestStoreDVD {
         storePersonalBestIfBest( makeMutablePosition(personalBest1))
       }
       val kp1 = new KP()

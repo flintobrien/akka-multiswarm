@@ -1,13 +1,13 @@
 package com.hungrylearner.pso.particle.breezedvd.mo
 
-import com.hungrylearner.pso.particle.{ParetoFrontImpl, ParetoFront, MutablePosition, PersonalBestWriter}
+import com.hungrylearner.pso.particle.{ParetoFrontImpl, MutablePosition, PersonalBestWriter}
 import breeze.linalg.DenseVector
 
-trait PersonalBestStoreDVD extends PersonalBestWriter[Double,DenseVector[Double]] {
+trait PersonalBestWriterDVD extends PersonalBestWriter[Double,DenseVector[Double]] {
   def personalBest: PositionDVD
 }
 
-trait MoPersonalBestStoreDVD extends PersonalBestStoreDVD {
+trait PersonalBestStoreDVD extends PersonalBestWriterDVD {
   self: ParticleSpaceDVD =>
 
   protected var _paretoFront = new ParetoFrontImpl[Double,DenseVector[Double]]

@@ -25,7 +25,7 @@ class ParticleDVD( sc: SimulationContext, pc:ParticleContext, particleIndex: Int
   // Early initializers for each trait's context
   val psc = pc.particleSpace
   val kc = pc.kinematic
-} with Particle[Double,DenseVector[Double]] with KinematicParticleSpaceDVD with SinglePersonalBestStoreDVD {
+} with Particle[Double,DenseVector[Double]] with KinematicParticleSpaceDVD with PersonalBestStoreDVD {
 
   private val Logger = Logging.getLogger(sc.system, this)
   Logger.debug( "Particle {}", particleIndex)
