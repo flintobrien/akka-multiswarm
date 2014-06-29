@@ -1,7 +1,6 @@
 package com.hungrylearner.pso.particle.breezedvd.so
 
 import org.specs2.mutable._
-import org.mockito.Mockito._
 import org.specs2.mock.Mockito
 import akka.actor.ActorSystem
 import breeze.linalg.{DenseVector, sum}
@@ -10,7 +9,7 @@ import breeze.numerics.abs
 /**
  * Created by flint on 5/14/14.
  */
-class KinematicParticleSpaceSpec extends Specification with BeforeAfter with Mockito  {
+class KinematicParticleSpaceDVDSpec extends Specification with BeforeAfter with Mockito  {
 
   class MutablePositionExample( initialPosition: DenseVector[Double], bounds: Array[(Double,Double)]) extends MutablePositionDVD( initialPosition, bounds) {
     override def evaluateFitness( v: DenseVector[Double], iteration: Int): Double = { sum(abs(v)) }
