@@ -1,11 +1,12 @@
 package com.hungrylearner.pso.swarm
 
-import com.hungrylearner.pso.particle.{PositionIteration, Position}
+import com.hungrylearner.pso.particle.{MutablePosition, PositionIteration, Position}
 
 /**
  * Created by flint on 6/22/14.
  */
 trait Ego[F,P] {
+  def storeMutablePositionIfBest( position: MutablePosition[F,P]): Option[Position[F,P]]
   def storePositionIfBest( position: Position[F,P]): Boolean
   def storePositionsIfBest( positions: Seq[PositionIteration[F,P]]): Seq[PositionIteration[F,P]]
 }
@@ -30,6 +31,14 @@ trait SingleEgoImpl[F,P] extends SingleEgo[F,P] {
       true
     } else
       false
+  }
+
+  override def storeMutablePositionIfBest(position: MutablePosition[F, P]): Option[Position[F,P]] = {
+    if( _bestPosition == null || position < _bestPosition) {
+      _bestPosition = position.toPosition
+      Some(_bestPosition)
+    } else
+      None
   }
 
   override def storePositionsIfBest( positions: Seq[PositionIteration[F, P]]) =

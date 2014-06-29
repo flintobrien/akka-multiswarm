@@ -55,46 +55,48 @@ class ParticleSpec  extends Specification with BeforeAfter with Mockito  {
 
   type PL = Particle[Double,DenseVector[Double]]
   type P = Position[Double,DenseVector[Double]]
-  val positionWith1 = makeMutablePosition( 1.0)
-  val positionWith2 = makeMutablePosition( 2.0)
+  val mPositionWith1 = makeMutablePosition( 1.0)
+  val positionWith1 = mPositionWith1.toPosition
+  val mPositionWith2 = makeMutablePosition( 2.0)
+  val positionWith2 = mPositionWith2.toPosition
   val positionBounds = Array[(Double,Double)]( (0.0,10.0))
   def makeMutablePosition( p: Double) = new MutablePositionExample( DenseVector[Double](p), positionBounds)
 
 
   "Particle" should {
 
-    "  return other as the fittest particle" in {
-      val particle = mock[ParticleUnderTest]
-      val particleBest = mock[ParticleUnderTest]
-      when( particle.fittest( any[PL])).thenCallRealMethod
-      particle.position returns positionWith2
-      particleBest.position returns positionWith1
-
-      val result = particle.fittest(particleBest)
-      result must be( particleBest)
-    }
-
-    "  return this as the fittest particle" in {
-      val particle = mock[ParticleUnderTest]
-      val particleBest = mock[ParticleUnderTest]
-      when( particle.fittest( any[PL])).thenCallRealMethod
-      particle.position returns positionWith1
-      particleBest.position returns positionWith2
-
-      val result = particle.fittest(particleBest)
-      result must be( particle)
-    }
+//    "  return other as the fittest particle" in {
+//      val particle = mock[ParticleUnderTest]
+//      val particleBest = mock[ParticleUnderTest]
+//      when( particle.fittest( any[PL])).thenCallRealMethod
+//      particle.position returns positionWith2
+//      particleBest.position returns positionWith1
+//
+//      val result = particle.fittest(particleBest)
+//      result must be( particleBest)
+//    }
+//
+//    "  return this as the fittest particle" in {
+//      val particle = mock[ParticleUnderTest]
+//      val particleBest = mock[ParticleUnderTest]
+//      when( particle.fittest( any[PL])).thenCallRealMethod
+//      particle.position returns positionWith1
+//      particleBest.position returns positionWith2
+//
+//      val result = particle.fittest(particleBest)
+//      result must be( particle)
+//    }
 
     "  call multiple functions on Particle.update" in {
       val particle = mock[ParticleUnderTest]
       val particleBest = mock[ParticleUnderTest]
       when( particle.update( anyInt, any[P])).thenCallRealMethod
-      when( particle.fittest( any[PL])).thenCallRealMethod
+//      when( particle.fittest( any[PL])).thenCallRealMethod
 
-      particle.position returns positionWith2
+      particle.position returns mPositionWith2
       particle.velocity returns DenseVector[Double](1.0)
       //particle.personalBest returns new BestPositionImpl[Double,DenseVector[Double]]
-      particleBest.position returns positionWith1
+      particleBest.position returns mPositionWith1
       particle.update( 2, positionWith1)
 
       there was one( particle).update( 2, positionWith1) andThen

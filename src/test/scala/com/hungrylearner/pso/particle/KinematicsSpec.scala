@@ -37,29 +37,29 @@ class KinematicsSpec  extends Specification with BeforeAfter with Mockito  {
 
   "ParticleLike" should {
 
-    "return other as the fittest particle" in {
-      //      println( "test 1 ------------------------------")
-      val particle = mock[Particle_Class]
-      val particleBest = mock[Particle_Class]
-      when(particle.fittest(any[ParticleDVD])).thenCallRealMethod
-      particle.position returns positionWith2
-      particleBest.position returns positionWith1
-
-      val result = particle.fittest(particleBest)
-      result must be(particleBest)
-    }
-
-    "return this as the fittest particle" in {
-      //      println( "test 1 ------------------------------")
-      val particle = mock[Particle_Class]
-      val particleBest = mock[Particle_Class]
-      when(particle.fittest(any[ParticleDVD])).thenCallRealMethod
-      particle.position returns positionWith1
-      particleBest.position returns positionWith2
-
-      val result = particle.fittest(particleBest)
-      result must be(particle)
-    }
+//    "return other as the fittest particle" in {
+//      //      println( "test 1 ------------------------------")
+//      val particle = mock[Particle_Class]
+//      val particleBest = mock[Particle_Class]
+//      when(particle.fittest(any[ParticleDVD])).thenCallRealMethod
+//      particle.position returns positionWith2
+//      particleBest.position returns positionWith1
+//
+//      val result = particle.fittest(particleBest)
+//      result must be(particleBest)
+//    }
+//
+//    "return this as the fittest particle" in {
+//      //      println( "test 1 ------------------------------")
+//      val particle = mock[Particle_Class]
+//      val particleBest = mock[Particle_Class]
+//      when(particle.fittest(any[ParticleDVD])).thenCallRealMethod
+//      particle.position returns positionWith1
+//      particleBest.position returns positionWith2
+//
+//      val result = particle.fittest(particleBest)
+//      result must be(particle)
+//    }
 
   }
 

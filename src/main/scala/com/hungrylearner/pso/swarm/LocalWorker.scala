@@ -117,7 +117,8 @@ trait AbstractLocalWorker[F,P] extends LocalWorker[F,P] {
 trait SingleLocalWorker[F,P] extends AbstractLocalWorker[F,P] {
   this: LocalId[F,P] with SingleEgo[F,P] with LocalSocialInfluence[F,P] with LocalTerminateCriteria[F,P] =>
 
-  storePositionIfBest( particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition)
+  particles.foreach( particle => storeMutablePositionIfBest( particle.position))
+//  storePositionIfBest( particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition)
 
   override def bestPositionsForReport: Seq[PositionIteration[F,P]] = Seq( PositionIteration( bestPosition, iteration))
 

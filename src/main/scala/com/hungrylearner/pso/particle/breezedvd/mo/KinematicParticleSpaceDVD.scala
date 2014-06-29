@@ -40,7 +40,7 @@ object KinematicParticleSpaceDVD {
   }
 }
 
-trait KinematicParticleSpaceDVD extends Kinematic[Double,DenseVector[Double]] with ParticleSpaceDVD with PersonalBestWriterDVD {
+trait KinematicParticleSpaceDVD extends Kinematic[DenseVector[Double],DenseVector[Double]] with ParticleSpaceDVD with PersonalBestWriterDVD {
   import KinematicParticleSpaceDVD._
 
   private val Logger = Logging.getLogger(kc.system, this)
@@ -59,17 +59,18 @@ trait KinematicParticleSpaceDVD extends Kinematic[Double,DenseVector[Double]] wi
 
   override def inertiaWeight = kc.inertiaWeight
 
-  override def updateVelocity( iteration: Int, bestPosition: Position[Double,DenseVector[Double]]): Unit = {
+  override def updateVelocity( iteration: Int, bestPosition: Position[DenseVector[Double],DenseVector[Double]]): Unit = {
 
     //    Logger.debug( "velocity 1: {}", _velocity)
     val rP: Double = kc.random()
     val rG: Double = kc.random()
 
-    Logger.debug( f"velocity   : v:${_velocity(0)}%7.3f *= inertiaWeight($iteration):${inertiaWeight(iteration)}%7.3f)  =  ${_velocity(0)*inertiaWeight(iteration)}%7.3f    pos/fit=${position.value(0)}%7.3f / ${position.fitness}%7.3f")
+    Logger.debug( f"velocity   : v:${_velocity(0)}%7.3f *= inertiaWeight($iteration):${inertiaWeight(iteration)}%7.3f)  =  ${_velocity(0)*inertiaWeight(iteration)}%7.3f    pos/fit=${position.value(0)}%7.3f / ${position.fitness(0)}%7.3f")
     _velocity *= inertiaWeight(iteration)
-    val influenceP: DenseVector[Double] = (personalBest.value - position.value) * (rP * kc.phiP)
+    val personalBestValue = personalBest.value  // The one personalBest that's chosen may be different each call.
+    val influenceP: DenseVector[Double] = (personalBestValue - position.value) * (rP * kc.phiP)
     val influenceG: DenseVector[Double] = (bestPosition.value - position.value)  * (rG * kc.phiG)
-    Logger.debug( f"influence P: (pBest=${personalBest.value(0)}%7.3f - pos=${position.value(0)}%7.3f) * (rP=$rP%7.3f * ${kc.phiP}%7.3f   =   influenceP=${influenceP(0)}%7.3f")
+    Logger.debug( f"influence P: (pBest=${personalBestValue(0)}%7.3f - pos=${position.value(0)}%7.3f) * (rP=$rP%7.3f * ${kc.phiP}%7.3f   =   influenceP=${influenceP(0)}%7.3f")
     Logger.debug( f"influence G: (gBest=${bestPosition.value(0)}%7.3f - pos=${position.value(0)}%7.3f) * (rG=$rG%7.3f * ${kc.phiG}%7.3f   =   influenceG=${influenceG(0)}%7.3f")
     Logger.debug( f"velocity  v: v=${_velocity(0)}%7.3f + l=${influenceP(0)}%7.3f + g=${influenceG(0)}%7.3f")
     _velocity += influenceP

@@ -19,7 +19,10 @@ case class PositionIteration[F,P]( position: Position[F,P], iteration: Int)
  * @tparam F Fitness
  * @tparam P Particle backing store
  */
-trait MutablePosition[F,P] extends Position[F,P]{
+//trait MutablePosition[F,P] extends Position[F,P] {
+trait MutablePosition[F,P] extends Ordered[Position[F,P]] {
+  def value: P
+  def fitness: F
 
   /**
    * Evaluate the fitness of the current position. The current iteration is available for

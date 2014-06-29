@@ -16,7 +16,7 @@ object SwarmActorSpec extends Mockito {
   mutablePosition.toPosition returns position
 
   val particle = mock[Particle[Int,Int]]
-  particle.fittest( any[Particle[Int,Int]]) returns particle
+//  particle.fittest( any[Particle[Int,Int]]) returns particle
   particle.position returns mutablePosition
   particle.update( anyInt, any[Position[Int,Int]]) returns Some( position)
 

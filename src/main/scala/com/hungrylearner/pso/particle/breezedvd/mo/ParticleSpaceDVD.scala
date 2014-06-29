@@ -14,7 +14,7 @@ object ParticleSpaceDVD {
                                         )
 }
 
-trait ParticleSpaceDVD extends ParticleSpace[Double,DenseVector[Double]] {
+trait ParticleSpaceDVD extends ParticleSpace[DenseVector[Double],DenseVector[Double]] {
   import ParticleSpaceDVD._
 
   override type PositionBounds = Array[(Double,Double)]
