@@ -6,8 +6,7 @@ import breeze.linalg.DenseVector
 trait PersonalBestStoreDVD extends PersonalBestWriter[DenseVector[Double],DenseVector[Double]] {
   self: ParticleSpaceDVD =>
 
-  protected var _paretoFront = new ParetoFrontDVD
-  _paretoFront.storeMutablePositionIfNonDominated( _position)
+  protected var _paretoFront = new ParetoFrontDVD( _position.toPosition)
 
   def personalBest: PositionDVD = _paretoFront.getOneBestPosition( _position).asInstanceOf[PositionDVD]
 

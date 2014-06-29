@@ -8,16 +8,21 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
 object ParetoFrontDVD {
   type DVD = DenseVector[Double]
 }
+import ParetoFrontDVD._
 
 /**
  * Created by flint on 6/28/14.
  */
-class ParetoFrontDVD  extends ParetoFront[DenseVector[Double],DenseVector[Double]]
+class ParetoFrontDVD  extends ParetoFront[DVD,DVD]
 {
-  import ParetoFrontDVD._
   import PositionDVD.doCompare
 
   protected val _frontier = new ArrayBuffer[Position[DVD,DVD]]()
+
+  def this( initialPosition: Position[DVD,DVD]) = {
+    this()
+    _frontier += initialPosition
+  }
 
   /**
    * Store position to the Pareto frontier if it's not dominated by any positions
@@ -53,23 +58,28 @@ class ParetoFrontDVD  extends ParetoFront[DenseVector[Double],DenseVector[Double
     var index = 0
     while( notDominated && index < length) {
       val fp = _frontier(index)
-      val compare = doCompare( fp.fitness, fitness)
-      if( compare < 0) {
-        notDominated = false
-      } else if( compare > 0) {
-        // new position dominates current value
-        if( result.isDefined) {
-          _frontier.remove(index)
-          index -= 1
-          length -= 1
-        } else {
-          val pos = position()
-          _frontier.update(index, pos) // replace old with new position
-          result = Some(pos)
-        }
-      } else {
-        // not dominated by this frontier position. Keep going.
+
+      doCompare( fp.fitness, fitness) match {
+        case 0 =>
+          // not dominated by frontier position. Keep searching.
+
+        case compare if compare < 0 =>
+          notDominated = false
+
+        case compare if compare > 0 =>
+          // new position dominates current value
+          if( result.isDefined) {
+            _frontier.remove(index)
+            index -= 1
+            length -= 1
+          } else {
+            val pos = position()
+            _frontier.update(index, pos) // replace old with new position
+            result = Some(pos)
+          }
+
       }
+
       index += 1
     }
 
@@ -106,7 +116,9 @@ class ParetoFrontDVD  extends ParetoFront[DenseVector[Double],DenseVector[Double
    * @return A single best position
    */
   override def getOneBestPosition( position: MutablePosition[DVD,DVD]) = {
-    position.toPosition
+    // TODO: need to figure out the actual best position to return
+    // TODO: what if we have no positions? The constructor allows this.
+    _frontier(0)
   }
 
   /**
