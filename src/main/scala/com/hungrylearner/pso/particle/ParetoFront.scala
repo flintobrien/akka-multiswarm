@@ -15,7 +15,6 @@ trait ParetoFront[F,P] {
    */
   def storePositionIfNonDominated( position: Position[F,P]): Option[Position[F,P]]
   def storeMutablePositionIfNonDominated( position: MutablePosition[F,P]): Option[Position[F,P]]
-//  override def setIfBest( position: MutablePosition[F,P]): Option[Position[F,P]]
 
   /**
    *

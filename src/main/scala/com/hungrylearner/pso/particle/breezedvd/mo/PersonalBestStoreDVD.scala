@@ -11,7 +11,6 @@ trait PersonalBestStoreDVD extends PersonalBestWriterDVD {
   self: ParticleSpaceDVD =>
 
   protected var _paretoFront = new ParetoFrontDVD
-//  protected var _personalBest: PositionDVD = new PositionDVD( _position.value, _position.fitness)
   _paretoFront.storeMutablePositionIfNonDominated( _position)
 
   override def personalBest: PositionDVD = _paretoFront.getOneBestPosition( _position).asInstanceOf[PositionDVD]
