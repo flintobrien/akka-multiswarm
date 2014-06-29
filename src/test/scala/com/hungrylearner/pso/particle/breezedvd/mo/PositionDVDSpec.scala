@@ -28,7 +28,7 @@ class PositionDVDSpec extends Specification with BeforeAfter with Mockito {
         DenseVector[Double](1,2)) must beEqualTo( 0)
     }
 
-    "  doCompare returns -1 when fitness are less than" in {
+    "  doCompare returns -1 when fitness a < b" in {
       doCompare(
         DenseVector[Double](0),
         DenseVector[Double](1)) must beEqualTo( -1)
@@ -38,7 +38,7 @@ class PositionDVDSpec extends Specification with BeforeAfter with Mockito {
         DenseVector[Double](3,4)) must beEqualTo( -1)
     }
 
-    "  doCompare returns 1 when fitness are greater than" in {
+    "  doCompare returns 1 when fitness a > b" in {
       doCompare(
         DenseVector[Double](1),
         DenseVector[Double](0)) must beEqualTo( 1)

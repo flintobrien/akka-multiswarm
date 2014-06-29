@@ -118,7 +118,10 @@ class ParetoFrontDVD  extends ParetoFront[DVD,DVD]
   override def getOneBestPosition( position: MutablePosition[DVD,DVD]) = {
     // TODO: need to figure out the actual best position to return
     // TODO: what if we have no positions? The constructor allows this.
-    _frontier(0)
+    if( frontier.length <= 0)
+      null
+    else
+      _frontier(0)
   }
 
   /**
