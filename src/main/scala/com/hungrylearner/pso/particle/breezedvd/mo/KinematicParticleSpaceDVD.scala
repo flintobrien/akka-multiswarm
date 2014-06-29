@@ -40,7 +40,9 @@ object KinematicParticleSpaceDVD {
   }
 }
 
-trait KinematicParticleSpaceDVD extends Kinematic[DenseVector[Double],DenseVector[Double]] with ParticleSpaceDVD with PersonalBestWriterDVD {
+trait KinematicParticleSpaceDVD extends Kinematic[DenseVector[Double],DenseVector[Double]] with ParticleSpaceDVD {
+  self: PersonalBestStoreDVD =>
+
   import KinematicParticleSpaceDVD._
 
   private val Logger = Logging.getLogger(kc.system, this)
