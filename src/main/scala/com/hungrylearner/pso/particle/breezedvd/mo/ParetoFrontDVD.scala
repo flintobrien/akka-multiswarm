@@ -13,7 +13,7 @@ import ParetoFrontDVD._
 /**
  * Created by flint on 6/28/14.
  */
-class ParetoFrontDVD  extends ParetoFront[DVD,DVD]
+class ParetoFrontDVD extends ParetoFront[DVD,DVD]
 {
   import PositionDVD.doCompare
 
@@ -29,17 +29,68 @@ class ParetoFrontDVD  extends ParetoFront[DVD,DVD]
    * in the current Pareto frontier. Remove any current positions that are dominated
    * by the new position.
    *
-   * @param mPosition Position to add if not dominated by current Pareto frontier
-   * @return True if the position was added.
+   * @param mPosition MutablePosition to add if not dominated by current Pareto frontier
+   * @return Some Position if the position was non dominated and added to frontier.
    */
   override def storeMutablePositionIfNonDominated( mPosition: MutablePosition[DVD,DVD]): Option[Position[DVD,DVD]] = {
     val positionFunction = () => mPosition.toPosition
     storeIfNonDominated( mPosition.fitness, positionFunction)
   }
+
+  /**
+   * Store position to the Pareto frontier if it's not dominated by any positions
+   * in the current Pareto frontier. Remove any current positions that are dominated
+   * by the new position.
+   *
+   * @param position Position to add if not dominated by current Pareto frontier
+   * @return Some Position if the position was non dominated and added to frontier.
+   */
   override def storePositionIfNonDominated( position: Position[DVD,DVD]): Option[Position[DVD,DVD]] = {
     val positionFunction = () => position
     storeIfNonDominated( position.fitness, positionFunction)
   }
+
+  /**
+   * Store only the positions that are non dominated by the the existing frontier. Remove any
+   * current positions that are dominated by the new position.
+   *
+   * @param positions The positions to add if non dominated.
+   * @return The set of non-dominated positions that were added.
+   */
+  override def storePositionsIfNonDominated( positions: Seq[Position[DVD,DVD]]): Seq[Position[DVD,DVD]] = {
+    for( p <- positions;
+         opt = storePositionIfNonDominated( p) if (opt.isDefined)
+       ) yield opt.get
+  }
+
+  /**
+   * Return the current positions in the Pareto frontier.
+   */
+  override def frontier: Seq[Position[DVD,DVD]] = _frontier.toSeq
+
+  /**
+   * Need a best position to update a particle, but the Pareto frontier has lots of
+   * positions. Pick a reasonable position to use based on the given position.
+   *
+   * @param position The position used to help determine which "best position" to return.
+   * @return A single best position
+   */
+  override def getOneBestPosition( position: MutablePosition[DVD,DVD]): Position[DVD,DVD] = {
+    if( frontier.length <= 0)
+      return null
+
+    // TODO: need to figure out the actual best position to return
+    val randomIndex: Int = math.floor( math.random * frontier.length).toInt
+    _frontier( randomIndex)
+  }
+
+  /**
+   * Return the number of positions currently in the Pareto frontier.
+   */
+  override def length = _frontier.length
+
+  override def ++( other: ParetoFront[DVD,DVD]) = throw new NotImplementedException
+
 
   protected def storeIfNonDominated( fitness: DVD, position: () => Position[DVD,DVD]): Option[Position[DVD,DVD]] = {
     var notDominated = true
@@ -61,7 +112,7 @@ class ParetoFrontDVD  extends ParetoFront[DVD,DVD]
 
       doCompare( fp.fitness, fitness) match {
         case 0 =>
-          // not dominated by frontier position. Keep searching.
+        // not dominated by frontier position. Keep searching.
 
         case compare if compare < 0 =>
           notDominated = false
@@ -91,44 +142,5 @@ class ParetoFrontDVD  extends ParetoFront[DVD,DVD]
 
     result
   }
-
-  /**
-   *
-   * @param positions
-   * @return The non-dominated positions that were added.
-   */
-  override def storePositionsIfNonDominated( positions: Seq[Position[DVD,DVD]]): Seq[Position[DVD,DVD]] = {
-    for( p <- positions;
-         opt = storePositionIfNonDominated( p) if (opt.isDefined)
-       ) yield opt.get
-  }
-
-  /**
-   * Return the current positions in the Pareto frontier.
-   */
-  override def frontier: Seq[Position[DVD,DVD]] = _frontier.toSeq
-
-  /**
-   * Need a best position to update a particle, but the Pareto frontier has lots of
-   * positions. Pick a reasonable position to use based on the given position.
-   *
-   * @param position The position used to help determine which "best position" to return.
-   * @return A single best position
-   */
-  override def getOneBestPosition( position: MutablePosition[DVD,DVD]) = {
-    // TODO: need to figure out the actual best position to return
-    // TODO: what if we have no positions? The constructor allows this.
-    if( frontier.length <= 0)
-      null
-    else
-      _frontier(0)
-  }
-
-  /**
-   * Return the number of positions currently in the Pareto frontier.
-   */
-  override def length = _frontier.length
-
-  override def ++( other: ParetoFront[DVD,DVD]) = throw new NotImplementedException
 
 }
