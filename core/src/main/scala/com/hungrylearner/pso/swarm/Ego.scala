@@ -1,6 +1,6 @@
 package com.hungrylearner.pso.swarm
 
-import com.hungrylearner.pso.particle.{MutablePosition, PositionIteration, Position}
+import com.hungrylearner.pso.particle.{ParetoFront, MutablePosition, PositionIteration, Position}
 
 /**
  * Ego stores the current best position (or positions for multi-objective swarms).
@@ -19,7 +19,8 @@ trait SingleEgo[F,P] extends Ego[F,P] {
 }
 
 trait MultiEgo[F,P] extends Ego[F,P] {
-  def bestPositions: Seq[PositionIteration[F,P]]
+  def bestPosition( position: MutablePosition[F,P]): Position[F,P]
+  def bestPositions: Seq[Position[F,P]]
 }
 
 
@@ -47,4 +48,23 @@ trait SingleEgoImpl[F,P] extends SingleEgo[F,P] {
   override def storePositionsIfBest( positions: Seq[PositionIteration[F, P]]) =
     positions.filter( pi => storePositionIfBest( pi.position))
 
+}
+
+trait MultiEgoImpl[F,P] extends MultiEgo[F,P] {
+  protected var _bestPositions: ParetoFront[F,P]
+
+  override def bestPosition( position: MutablePosition[F,P]) = _bestPositions.getOneBestPosition( position)
+  override def bestPositions = _bestPositions.frontier
+
+  override def storePositionIfBest(position: Position[F, P]): Boolean = {
+    val option = _bestPositions.storePositionIfNonDominated( position)
+    option.isDefined
+  }
+
+  override def storeMutablePositionIfBest(position: MutablePosition[F, P]): Option[Position[F,P]] = {
+    _bestPositions.storeMutablePositionIfNonDominated( position)
+  }
+
+  override def storePositionsIfBest( positions: Seq[PositionIteration[F, P]]): Seq[PositionIteration[F,P]] =
+    _bestPositions.storePositionsIfNonDominated( positions)
 }

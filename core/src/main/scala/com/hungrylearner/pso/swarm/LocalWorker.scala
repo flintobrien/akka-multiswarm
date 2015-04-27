@@ -142,3 +142,35 @@ trait SingleLocalWorker[F,P] extends AbstractLocalWorker[F,P] {
   }
 
 }
+
+/**
+ * Created by flint on 6/1/14.
+ */
+trait MultiLocalWorker[F,P] extends AbstractLocalWorker[F,P] {
+  this: LocalId[F,P] with MultiEgo[F,P] with LocalSocialInfluence[F,P] with LocalTerminateCriteria[F,P] =>
+
+  particles.foreach( particle => storeMutablePositionIfBest( particle.position))
+  //  storePositionIfBest( particles.reduceLeft( (a, b) => a.fittest( b) ).position.toPosition)
+
+  override def bestPositionsForReport: Seq[PositionIteration[F,P]] =bestPositions
+
+  override protected def onOneIteration: Unit = {
+
+    if( state != SWARMING_AROUND)
+      state = SWARMING_ONE_ITERATION
+    iteration += 1
+    particles.foreach{ p =>
+      // TODO: Can we pick a position out of the pareto frontier to pass to update or just pass the whole Pareto frontier?
+      p.update( iteration, bestPosition) match {
+        case Some(newPersonalBestPosition) =>
+          storePositionIfBest( newPersonalBestPosition)
+        case None =>
+      }
+    }
+
+    Logger.debug( s"LocalSwarm.oneIteration end iteration=$iteration bestPosition: ${bestPosition.value}")
+
+    oneIterationCompleted()
+  }
+
+}

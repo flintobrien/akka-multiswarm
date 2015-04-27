@@ -1,6 +1,6 @@
 package com.hungrylearner.pso.particle.breezedvd.mo
 
-import com.hungrylearner.pso.particle.{ParetoFront, Position, MutablePosition}
+import com.hungrylearner.pso.particle.{PositionIteration, ParetoFront, Position, MutablePosition}
 import breeze.linalg.DenseVector
 import scala.collection.mutable.ArrayBuffer
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
@@ -57,10 +57,11 @@ class ParetoFrontDVD extends ParetoFront[DVD,DVD]
    * @param positions The positions to add if non dominated.
    * @return The set of non-dominated positions that were added.
    */
-  override def storePositionsIfNonDominated( positions: Seq[Position[DVD,DVD]]): Seq[Position[DVD,DVD]] = {
-    for( p <- positions;
-         opt = storePositionIfNonDominated( p) if (opt.isDefined)
-       ) yield opt.get
+  override def storePositionsIfNonDominated( positions: Seq[PositionIteration[DVD,DVD]]): Seq[PositionIteration[DVD,DVD]] = {
+    for( pi <- positions;
+         opt = storePositionIfNonDominated( pi.position)
+         if (opt.isDefined)
+       ) yield pi
   }
 
   /**

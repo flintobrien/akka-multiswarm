@@ -21,9 +21,14 @@ trait ParetoFront[F,P] {
    * @param positions
    * @return The non-dominated positions that were added.
    */
-  def storePositionsIfNonDominated( positions: Seq[Position[F,P]]): Seq[Position[F,P]]
+  def storePositionsIfNonDominated( positions: Seq[PositionIteration[F,P]]): Seq[PositionIteration[F,P]]
 
   def ++( other: ParetoFront[F,P]): ParetoFront[F,P]
+
+  /**
+   * Return the current positions in the Pareto frontier.
+   */
+  def frontier: Seq[Position[F,P]]  // TODO: or iterator or array?
 
   /**
    * Need a best position to update a particle, but the Pareto frontier has lots of
@@ -39,8 +44,4 @@ trait ParetoFront[F,P] {
    */
   def length: Integer
 
-  /**
-   * Return the current positions in the Pareto frontier.
-   */
-  def frontier: Seq[Position[F,P]]  // TODO: or iterator or array?
 }
