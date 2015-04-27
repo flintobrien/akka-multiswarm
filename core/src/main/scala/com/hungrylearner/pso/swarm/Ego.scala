@@ -3,6 +3,9 @@ package com.hungrylearner.pso.swarm
 import com.hungrylearner.pso.particle.{MutablePosition, PositionIteration, Position}
 
 /**
+ * Ego stores the current best position (or positions for multi-objective swarms).
+ * TODO: Rename this class to just Memory or PositionMemory
+ *
  * Created by flint on 6/22/14.
  */
 trait Ego[F,P] {
