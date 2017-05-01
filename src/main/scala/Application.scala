@@ -1,11 +1,13 @@
 
 import akka.actor._
-import akka.event.{LoggingAdapter, Logging}
+import akka.event.{Logging, LoggingAdapter}
 import breeze.linalg.{DenseVector, sum}
 import breeze.numerics.abs
+import com.hungrylearner.pso.particle.EvaluatedPosition
 import com.hungrylearner.pso.particle.breezedvd._
 import com.hungrylearner.pso.swarm._
 import com.hungrylearner.pso.swarm.Report.ProgressReport
+
 import scala.concurrent.duration._
 
 
@@ -24,9 +26,14 @@ class MyLocalSwarmIntelligence[F,P]( override val config: LocalSwarmConfig[F,P],
   override val reportingStrategy: LocalReportingStrategy[F, P] = new MyReportingStrategy[F,P]( context.parent)
 }
 
-class MyMutablePosition( initialPosition: DenseVector[Double], bounds: Array[(Double,Double)]) extends MutablePositionDVD( initialPosition, bounds) {
+object MyMutablePosition {
+  type PositionVector = DenseVector[Double]
+}
+import MyMutablePosition._
 
-  override def evaluateFitness( v: DenseVector[Double], iteration: Int): Double = {
+class MyMutablePosition( initialPosition: PositionVector, bounds: Array[(Double,Double)]) extends MutablePositionDVD( initialPosition, bounds) {
+
+  override def evaluateFitness( v: PositionVector, iteration: Int): Double = {
     // Simple swarm objective. The best particle is the one wth all values closest to zero.
     sum( abs(v))
   }
@@ -83,7 +90,7 @@ object Simulation {
     val simulationContext = SimulationContext( iterations, system)
     def makeParticle( swarmIndex: Int, particleIndex: Int, particleCount: Int) = new ParticleDVD(simulationContext,  particleContext, particleIndex)
 
-    new LocalSwarmConfig[Double,DenseVector[Double]]( particleCount, makeParticle, simulationContext)
+    new LocalSwarmConfig[Double,PositionVector]( particleCount, makeParticle, simulationContext)
   }
 
   private def boundedRandom( bounds: (Double,Double)): Double = {
@@ -95,6 +102,10 @@ object Simulation {
 class Simulation( iterations: Int) extends Actor with ActorLogging {
   import Simulation._
   import CompletedType._
+  import TerminateCriteriaStatus._
+  import Report._
+  import com.hungrylearner.pso.particle.EvaluatedPosition
+
   //  private val Logger = Logging.getLogger(system, this)
 
   var swarm: ActorRef = _
@@ -107,7 +118,12 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
 
   def receive = {
     case Initialize => initializePso
-    case report: ProgressReport[Double,DenseVector[Double]] =>  onReport( report)
+    case ProgressReport( completedType: CompletedType,
+                         childIndex: Int,
+                         evaluatedPosition: EvaluatedPosition[_,_],
+                         iteration: Int,
+                         progress: Progress,
+                         terminateCriteriaStatus: TerminateCriteriaStatus ) =>  onReport( completedType, childIndex, evaluatedPosition, iteration, progress, terminateCriteriaStatus)
     case Terminated( child) =>
       log.info( s"LocalSwarmActor '${child.path.name}' Terminated ")
       context.system.shutdown()
@@ -122,9 +138,9 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
       val swarmConfig = makeLocalSwarmConfig( iterations, context.system)
 
       val localSwarmIntelligenceFactory = ( childIndex: Int, context: ActorContext) =>
-        new MyLocalSwarmIntelligence[Double,DenseVector[Double]]( swarmConfig, childIndex, context)
+        new MyLocalSwarmIntelligence[Double,PositionVector]( swarmConfig, childIndex, context)
 
-      val props = Props(classOf[LocalSwarmActor[Double,DenseVector[Double]]], localSwarmIntelligenceFactory, 0)
+      val props = Props(classOf[LocalSwarmActor[Double,PositionVector]], localSwarmIntelligenceFactory, 0)
       swarm = context.actorOf(props,  "localSwarm1")
       context.watch( swarm) // watch for child Terminated
       swarm ! swarmAround
@@ -133,14 +149,28 @@ class Simulation( iterations: Int) extends Actor with ActorLogging {
     }
   }
 
-  def onReport( report: ProgressReport[Double,DenseVector[Double]]) = {
-    log.info(  s"++++++++++++++++++++++++++++++++ ProgressReport ${report.iteration} ${report.evaluatedPosition.position.value(0)}")
-    if( report.completedType != SwarmingCompleted)
-      swarm ! swarmAround
-    else {
-      // Stop the child. Since we're watching, We'll receive a Terminated when child is stopped.
-      context.stop( swarm)
+  def onReport( completedType: CompletedType,
+                childIndex: Int,
+                evaluatedPosition: EvaluatedPosition[_,_],
+                iteration: Int,
+                progress: Progress,
+                terminateCriteriaStatus: TerminateCriteriaStatus) = {
+
+    evaluatedPosition match {
+      case EvaluatedPosition( position: MyMutablePosition, isBest: Boolean) =>
+        log.info(  s"++++++++++++++++++++++++++++++++ ProgressReport ${iteration} ${position.value(0)}")
+        if( completedType != SwarmingCompleted)
+          swarm ! swarmAround
+        else {
+          // Stop the child. Since we're watching, We'll receive a Terminated when child is stopped.
+          context.stop( swarm)
+        }
+
+
+      case _ =>
     }
+
+
   }
 }
 
