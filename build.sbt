@@ -2,7 +2,7 @@ name := "akka-multiswarm"
 
 version := "0.1"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.6"
 
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.3.2",
